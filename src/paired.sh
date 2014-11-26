@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ $# -lt 3 ]
+if [ $# -ne 3 ]
 then
-    echo "Usage: $0 <genome.fa> <tumor folder1> <normal folder2> ..."
+    echo "Usage: $0 <genome.fa> <tumor.bam> <normal.bam>"
     exit -1
 fi
 
@@ -12,66 +12,44 @@ GENOME=${1}
 shift
 
 # Programs
-JAVABIN=java
 PICARD=${BASEDIR}/picard/dist/picard.jar
 SAM=${BASEDIR}/samtools/samtools
 BCF=${BASEDIR}/bcftools/bcftools
-BAMADDRG=/g/solexa/home/rausch/scripts/cpp/bamaddrg/bamaddrg
-FREEBAYES=/g/solexa/home/rausch/scripts/cpp/freebayes/bin/freebayes
+BAMADDRG=${BASEDIR}/bamaddrg/bamaddrg
+FREEBAYES=${BASEDIR}/freebayes/bin/freebayes
 
-# Options
+# Tmp directory
 DSTR=$(date +'%a_%y%m%d_%H%M')
-TMPDIR=/tmp
-if [ -z "${LSF_TYPE}" ]
-then
-    TMPDIR=`pwd`/tmp_${DSTR}
-else
-    mkdir -p /scratch/rausch/tmp_${DSTR}
-    TMPDIR=/scratch/rausch/tmp_${DSTR}
-fi
-export TMP=${TMPDIR}
+export TMP=/tmp/tmp_nRex_${DSTR}
+mkdir -p ${TMP}
 JAVAOPT="-Xmx32g -Djava.io.tmpdir=${TMP}"
 PICARDOPT="MAX_RECORDS_IN_RAM=5000000 TMP_DIR=${TMP} VALIDATION_STRINGENCY=SILENT"
-
-# Create IDs and directories
-mkdir -p ${TMP}
 
 # Merge and remove duplicates
 SAMPLEARR=( $@ )
 BAMFILES=""
 BAMLIST=""
-BAYESLIST=""
 for ((  i = 0 ;  i < ${#SAMPLEARR[@]};  i++  ))
 do
-    SAMPLEID=`echo ${SAMPLEARR[$i]} | sed 's/\/$//' | sed 's/^.*\///'`
+    SAMPLEID=`echo ${SAMPLEARR[$i]} | sed 's/^.*\///' | sed 's/\..*$//'`
     mkdir -p ${SAMPLEID}
 
     # Have we processed this sample already?
     if [ ! -f ${SAMPLEID}/${SAMPLEID}.rmdup.bam ]
     then
-	if [ `ls -lh ${SAMPLEARR[$i]}/*.bam | wc -l | cut -f 1` -eq 1 ]
-	then
-	    ln -s ${SAMPLEARR[$i]}/*.bam ${SAMPLEID}/${SAMPLEID}.bam
-	    ln -s ${SAMPLEARR[$i]}/*.bam.bai ${SAMPLEID}/${SAMPLEID}.bam.bai
-	else
-	    ${SAM} merge ${SAMPLEID}/${SAMPLEID}.bam ${SAMPLEARR[$i]}/*.bam
-	    ${SAM} index ${SAMPLEID}/${SAMPLEID}.bam
-	fi
-
         # Clean .bam file
-	${JAVABIN} ${JAVAOPT} -jar ${PICARD}/CleanSam.jar I=${SAMPLEID}/${SAMPLEID}.bam O=${SAMPLEID}/${SAMPLEID}.clean.bam ${PICARDOPT}
-	rm ${SAMPLEID}/${SAMPLEID}.bam ${SAMPLEID}/${SAMPLEID}.bam.bai
-    
+	java ${JAVAOPT} -jar ${PICARD} CleanSam I=${SAMPLEARR[$i]} O=${SAMPLEID}/${SAMPLEID}.clean.bam ${PICARDOPT}
+
         # Adjusting .bam file read groups to match GATK requirements
-	${JAVABIN} ${JAVAOPT} -jar ${PICARD}/AddOrReplaceReadGroups.jar I=${SAMPLEID}/${SAMPLEID}.clean.bam O=${SAMPLEID}/${SAMPLEID}.rg.bam SO=coordinate LB=EMBL RGPL=illumina PU=lane SM=${SAMPLEID} CN=GeneCore ${PICARDOPT}
+	java ${JAVAOPT} -jar ${PICARD} AddOrReplaceReadGroups I=${SAMPLEID}/${SAMPLEID}.clean.bam O=${SAMPLEID}/${SAMPLEID}.rg.bam SO=coordinate LB=${SAMPLEID} RGPL=illumina PU=lane SM=${SAMPLEID} CN=nRex ${PICARDOPT}
 	rm ${SAMPLEID}/${SAMPLEID}.clean.bam
 
-        # Reorder resulting .bam file karyotypically
-	${JAVABIN} ${JAVAOPT} -jar ${PICARD}/ReorderSam.jar I=${SAMPLEID}/${SAMPLEID}.rg.bam O=${SAMPLEID}/${SAMPLEID}.sort.bam REFERENCE=${GENOME} ${PICARDOPT}
+        # Reorder resulting .bam file according to the reference
+	java ${JAVAOPT} -jar ${PICARD} ReorderSam I=${SAMPLEID}/${SAMPLEID}.rg.bam O=${SAMPLEID}/${SAMPLEID}.sort.bam REFERENCE=${GENOME} ${PICARDOPT}
 	rm ${SAMPLEID}/${SAMPLEID}.rg.bam
 
         # Remove duplicates
-	${JAVABIN} ${JAVAOPT} -jar ${PICARD}/MarkDuplicates.jar I=${SAMPLEID}/${SAMPLEID}.sort.bam O=${SAMPLEID}/${SAMPLEID}.rmdup.bam  M=${SAMPLEID}/${SAMPLEID}.metric.log PG=null MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 ${PICARDOPT}
+	java ${JAVAOPT} -jar ${PICARD} MarkDuplicates I=${SAMPLEID}/${SAMPLEID}.sort.bam O=${SAMPLEID}/${SAMPLEID}.rmdup.bam  M=${SAMPLEID}/${SAMPLEID}.metric.log PG=null MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 ${PICARDOPT}
 	rm ${SAMPLEID}/${SAMPLEID}.sort.bam
 
         # Index resulting, sorted .bam file
@@ -81,9 +59,12 @@ do
     # Append BAM file
     BAMFILES=${BAMFILES}" -I "${SAMPLEID}/${SAMPLEID}.rmdup.bam" "
     BAMLIST=${BAMLIST}","${SAMPLEID}/${SAMPLEID}.rmdup.bam
-    BAMLIST=`echo ${BAMLIST} | sed 's/^,//'`
-    BAYESLIST=${BAYESLIST}" -b "${SAMPLEID}/${SAMPLEID}.rmdup.bam" -s "${SAMPLEID}" -r "${SAMPLEID}
 done
+BAMLIST=`echo ${BAMLIST} | sed 's/^,//'`
+
+echo ${BAMFILES}
+echo ${BAMLIST}
+exit;
 
 # Realign indels
 SAMPLEID=`echo ${SAMPLEARR[0]} | sed 's/\/$//' | sed 's/^.*\///'`

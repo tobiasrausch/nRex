@@ -21,3 +21,4 @@
 [submodule "src/bamaddrg"]
 	path = src/bamaddrg
 	url = https://github.com/ekg/bamaddrg.git
+	ignore = dirty
