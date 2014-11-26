@@ -2,3 +2,4 @@
 .htslib
 .picard
 .samtools
+.freebayes
