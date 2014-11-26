@@ -1,14 +1,33 @@
 # External sources
 PICARDSOURCES = $(wildcard src/picard/src/java/picard/*/*.java)
+HTSLIBSOURCES = $(wildcard src/htslib/*.c) $(wildcard src/htslib/*.h)
+SAMSOURCES = $(wildcard src/samtools/*.c) $(wildcard src/samtools/*.h)
+BCFSOURCES = $(wildcard src/bcftools/*.c) $(wildcard src/bcftools/*.h)
 
 # Targets
-TARGETS = .picard
+TARGETS = .picard .htslib .samtools .bcftools
 
 all:   	$(TARGETS)
 
 .picard: $(PICARDSOURCES)
 	cd src/picard && ant clone-htsjdk && ant -lib lib/ant/ all && cd ../../ && touch .picard
 
+.htslib: $(HTSLIBSOURCES)
+	cd src/htslib && make && cd ../../ && touch .htslib
+
+.samtools: $(SAMSOURCES)
+	cd src/samtools && make && cd ../../ && touch .samtools
+
+.bcftools: $(BCFSOURCES)
+	cd src/bcftools && make && cd ../../ && touch .bcftools
+
 clean:
 	cd src/picard && ant clean
-	rm -f .picard
+	cd src/htslib && make clean
+	cd src/samtools && make clean
+	cd src/bcftools && make clean
+	rm -f .picard .htslib .samtools .bcftools
+
+
+
+

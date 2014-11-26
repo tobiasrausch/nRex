@@ -6,13 +6,14 @@ then
     exit -1
 fi
 
+SCRIPT=$(readlink -f "$0")
+BASEDIR=$(dirname "$SCRIPT")
 GENOME=${1}
 shift
 
 # Programs
-JAVABIN=/g/solexa/bin/software/jre1.6.0_21/bin/java
-PICARD=/g/solexa/bin/software/picard-tools-1.114
-GATK=/g/solexa/bin/software/GenomeAnalysisTK-2.5-2-gf57256b
+JAVABIN=java
+PICARD=${BASEDIR}/picard/dist/picard.jar
 SAM=/g/solexa/bin/software/samtools-0.1.19/samtools
 BCF=/g/solexa/bin/software/samtools-0.1.19/bcftools/bcftools
 VCFTOOLS=/g/solexa/bin/software/vcftools_0.1.11/perl/
