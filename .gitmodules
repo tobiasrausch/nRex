@@ -1,3 +1,5 @@
 [submodule "src/picard"]
 	path = src/picard
 	url = https://github.com/broadinstitute/picard.git
+	ignore = dirty
+
