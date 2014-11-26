@@ -14,9 +14,8 @@ shift
 # Programs
 JAVABIN=java
 PICARD=${BASEDIR}/picard/dist/picard.jar
-SAM=/g/solexa/bin/software/samtools-0.1.19/samtools
-BCF=/g/solexa/bin/software/samtools-0.1.19/bcftools/bcftools
-VCFTOOLS=/g/solexa/bin/software/vcftools_0.1.11/perl/
+SAM=${BASEDIR}/samtools/samtools
+BCF=${BASEDIR}/bcftools/bcftools
 BAMADDRG=/g/solexa/home/rausch/scripts/cpp/bamaddrg/bamaddrg
 FREEBAYES=/g/solexa/home/rausch/scripts/cpp/freebayes/bin/freebayes
 
