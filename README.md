@@ -13,3 +13,12 @@ To build nRex you need to do the following:
 `cd nRex/`
 
 `make all`
+
+
+Running nRex
+------------
+
+nRex needs the reference genome and one bam file each for the tumor and the normal sample.
+
+`./nRex.sh <ref.fa> <tumor.bam> <normal.bam> ...`
+
