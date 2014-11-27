@@ -64,7 +64,7 @@ done
 SAMPLEID=`echo ${SAMPLEARR[0]} | sed 's/^.*\///' | sed 's/\..*$//'`
 if [ ! -f ${SAMPLEID}/${SAMPLEID}.mpileup.vcf ]
 then
-    ${SAM} mpileup -B -t DP,DV,SP -ugf ${GENOME} `echo ${BAMLIST} | sed 's/,/ /g'` | ${BCF} call -cv - > ${SAMPLEID}/${SAMPLEID}.mpileup.vcf
+    ${SAM} mpileup -B -t DP,DV,SP,DP4 -gf ${GENOME} `echo ${BAMLIST} | sed 's/,/ /g'` | ${BCF} call -mv --format-fields GQ,GP | sed 's/,Version="3">/>/' > ${SAMPLEID}/${SAMPLEID}.mpileup.vcf
 fi
 
 # Freebayes
