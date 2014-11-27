@@ -18,7 +18,3 @@
 	path = src/freebayes
 	url = https://github.com/ekg/freebayes.git
 	ignore = dirty
-[submodule "src/bamaddrg"]
-	path = src/bamaddrg
-	url = https://github.com/ekg/bamaddrg.git
-	ignore = dirty
