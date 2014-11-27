@@ -1,7 +1,7 @@
 nRex
 ====
 
-nRex is a somatic single-nucleotide variant calling meta-method. If you can improve the current workflow please let me know. Just copy and paste, modify or further develop it as you like.
+nRex is a somatic single-nucleotide variant calling meta-method. It uses mpileup, freebayes and optionally GATK. If you can improve the current workflow please let me know.
 
 Installing nRex
 ---------------
