@@ -81,3 +81,6 @@ then
 	java ${JAVAOPT} -jar ${GATK} -T HaplotypeCaller -R ${GENOME} `echo ${BAMLIST} | sed 's/,/ -I /g'` -o ${SAMPLEID}/${SAMPLEID}.gatk.vcf 
     fi
 fi
+
+# Clean-up
+rmdir ${TMP}
