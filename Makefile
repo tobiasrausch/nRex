@@ -4,10 +4,9 @@ HTSLIBSOURCES = $(wildcard src/htslib/*.c) $(wildcard src/htslib/*.h)
 SAMSOURCES = $(wildcard src/samtools/*.c) $(wildcard src/samtools/*.h)
 BCFSOURCES = $(wildcard src/bcftools/*.c) $(wildcard src/bcftools/*.h)
 FREEBAYSOURCES = $(wildcard src/freebayes/src/*.cpp) $(wildcard src/freebayes/src/*.h)
-BAMRGSOURCES = $(wildcard src/bamaddrg/*.cpp)
 
 # Targets
-TARGETS = .picard .htslib .samtools .bcftools .freebayes .bamaddrg
+TARGETS = .picard .htslib .samtools .bcftools .freebayes
 
 all:   	$(TARGETS)
 
@@ -26,14 +25,10 @@ all:   	$(TARGETS)
 .freebayes: $(FREEBAYSOURCES)
 	cd src/freebayes && make && cd ../../ && touch .freebayes
 
-.bamaddrg: $(BAMRGSOURCES)
-	cd src/bamaddrg && make && cd ../../ && touch .bamaddrg
-
 clean:
 	cd src/picard && ant clean
 	cd src/htslib && make clean
 	cd src/samtools && make clean
 	cd src/bcftools && make clean
 	cd src/freebayes && make clean
-	cd src/bamaddrg && make clean
-	rm -f .picard .htslib .samtools .bcftools .freebayes .bamaddrg
+	rm -f .picard .htslib .samtools .bcftools .freebayes
