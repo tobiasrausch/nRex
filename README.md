@@ -22,4 +22,4 @@ nRex needs the reference genome and one bam file each for the tumor and the norm
 
 `./nRex.sh <ref.fa> <tumor.bam> <normal.bam> ...`
 
-There is also a dockerized nRex version available [here](https://registry.hub.docker.com/u/trausch/nRex/).
+There is also a dockerized nRex version available [here](https://registry.hub.docker.com/u/trausch/nrex/).
