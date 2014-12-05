@@ -23,7 +23,7 @@ GATK=/g/solexa/bin/software/GenomeAnalysisTK-2.5-2-gf57256b/GenomeAnalysisTK.jar
 DSTR=$(date +'%a_%y%m%d_%H%M')
 export TMP=/tmp/tmp_nRex_${DSTR}
 mkdir -p ${TMP}
-JAVAOPT="-Xmx32g -Djava.io.tmpdir=${TMP}"
+JAVAOPT="-Xms4g -Xmx32g -XX:ParallelGCThreads=4 -Djava.io.tmpdir=${TMP}"
 PICARDOPT="MAX_RECORDS_IN_RAM=5000000 TMP_DIR=${TMP} VALIDATION_STRINGENCY=SILENT"
 
 # Merge and remove duplicates
