@@ -51,7 +51,7 @@ do
     BAMID=`echo ${OUTP} | sed "s/$/.align${i}/"`
 
     # BWA
-    #${BWA} mem -t ${THREADS} ${GENOME} ${SAMPLEARR[$i]} ${SAMPLEARR[$j]} | ${SAM} view -bT ${GENOME} - > ${OUTP}/${BAMID}.bam
+    ${BWA} mem -t ${THREADS} ${GENOME} ${SAMPLEARR[$i]} ${SAMPLEARR[$j]} | ${SAM} view -bT ${GENOME} - > ${OUTP}/${BAMID}.bam
 
     # Sort & Index
     ${SAM} sort -o ${OUTP}/${BAMID}.srt.bam ${OUTP}/${BAMID}.bam && rm ${OUTP}/${BAMID}.bam && ${SAM} index ${OUTP}/${BAMID}.srt.bam
