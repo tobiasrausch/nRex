@@ -3,3 +3,10 @@
 .picard
 .samtools
 .freebayes
+.java
+.perl
+.bamStats
+.vep
+.bwa
+src/java
+src/perl

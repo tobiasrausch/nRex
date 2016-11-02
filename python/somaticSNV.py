@@ -42,8 +42,8 @@ if args.vcfFile:
             gqRef=[]
             gqAlt=[]
             for call in record.samples:
-                if (((re.search(r"[Nn]ormal", call.sample)!=None) or (re.search(r"[Cc]ontrol", call.sample)!=None)) and (call.called) and (call.gt_type==0)):
-                #if ((re.search(r"NDNA", call.sample)!=None) and (call.called) and (call.gt_type==0)):
+                #if (((re.search(r"[Nn]ormal", call.sample)!=None) or (re.search(r"[Cc]ontrol", call.sample)!=None)) and (call.called) and (call.gt_type==0)):
+                if (((re.search(r"3BM", call.sample)!=None) or (re.search(r"[Cc]ontrol", call.sample)!=None)) and (call.called) and (call.gt_type==0)):
                     dvVal=getattr(call.data, 'DV', None)
                     vafPass=False
                     dpVal=0
@@ -78,8 +78,8 @@ if args.vcfFile:
                                 vafPass=True
                     if (vafPass):
                         gqRef.append(call['GQ'])
-                if ((re.search(r"[Tt]umo", call.sample)!=None) and (call.called) and (call.gt_type!=0)):
-                #if ((re.search(r"CLL", call.sample)!=None) and (call.called) and (call.gt_type!=0)):
+                #if ((re.search(r"[Tt]umo", call.sample)!=None) and (call.called) and (call.gt_type!=0)):
+                if ((re.search(r"3T", call.sample)!=None) and (call.called) and (call.gt_type!=0)):
                     gqAlt.append(call['GQ'])
             # Check p-values if present
             pv4Pass=True

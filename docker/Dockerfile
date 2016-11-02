@@ -14,7 +14,7 @@ MAINTAINER Tobias Rausch rausch@embl.de
 RUN apt-get update
 
 # install g++, git, zlib, cmake, boost, ...
-RUN apt-get install -y build-essential g++ git cmake zlib1g-dev ncurses-dev openjdk-7-jdk ant wget
+RUN apt-get install -y build-essential g++ git cmake zlib1g-dev ncurses-dev openjdk-7-jdk ant wget libmysqlclient-dev
 
 # install delly
 RUN git clone --recursive https://github.com/tobiasrausch/nRex.git
