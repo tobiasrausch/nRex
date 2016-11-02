@@ -10,3 +10,4 @@
 .bwa
 src/java
 src/perl
+src/vep
