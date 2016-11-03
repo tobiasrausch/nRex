@@ -81,8 +81,8 @@ done
 
 # Freebayes
 ${FREEBAYES} --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.15 --fasta-reference ${GENOME} --genotype-qualities `echo ${BAMLIST} | sed 's/,/ -b /g'` -v ${OUTP}/${BAMID}.vcf
-bgzip ${OUTP}/${BAMID}.vcf
-tabix ${OUTP}/${BAMID}.vcf.gz
+${BGZIP} ${OUTP}/${BAMID}.vcf
+${TABIX} ${OUTP}/${BAMID}.vcf.gz
 
 # Fixed threshold filtering
 ${BCF} filter -O b -o ${OUTP}/${BAMID}.bcf -e '%QUAL<=20 || %QUAL/AO<=2 || SAF<=1 || SAR<=1 || RPR<=1 || RPL<=1' ${OUTP}/${BAMID}.vcf.gz
@@ -90,10 +90,18 @@ rm ${OUTP}/${BAMID}.vcf.gz ${OUTP}/${BAMID}.vcf.gz.tbi
 
 # Normalize InDels
 ${BCF} norm -O z -o ${OUTP}/${BAMID}.norm.vcf.gz -c x -f ${GENOME} ${OUTP}/${BAMID}.bcf
+${TABIX} ${OUTP}/${BAMID}.norm.vcf.gz
 rm ${OUTP}/${BAMID}.bcf
 
 # VEP
-perl ${VEP} --species homo_sapiens --assembly GRCh37 --offline --no_progress --no_stats --sift b --ccds --uniprot --hgvs --symbol --numbers --domains --gene_phenotype --canonical --protein --biotype --uniprot --tsl --pubmed --variant_class --shift_hgvs 1 --check_existing --total_length --allele_number --no_escape --xref_refseq --failed 1 --vcf --minimal --flag_pick_allele --pick_order canonical,tsl,biotype,rank,ccds,length --dir ${VEP_DATA} --fasta ${VEP_DATA}/homo_sapiens/86_GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa --input_file ${OUTP}/${BAMID}.norm.vcf.gz --output_file ${OUTP}/${BAMID}.vep.vcf.gz --polyphen b --gmaf --maf_1kg --maf_esp --regulatory --plugin ExAC,${VEP_DATA}/ExAC.r0.3.1.sites.vep.vcf.gz
+perl ${VEP} --species homo_sapiens --assembly GRCh37 --offline --no_progress --no_stats --sift b --ccds --uniprot --hgvs --symbol --numbers --domains --gene_phenotype --canonical --protein --biotype --uniprot --tsl --pubmed --variant_class --shift_hgvs 1 --check_existing --total_length --allele_number --no_escape --xref_refseq --failed 1 --vcf --minimal --flag_pick_allele --pick_order canonical,tsl,biotype,rank,ccds,length --dir ${VEP_DATA} --fasta ${VEP_DATA}/homo_sapiens/86_GRCh37/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa --input_file ${OUTP}/${BAMID}.norm.vcf.gz --output_file ${OUTP}/${BAMID}.vep.vcf --polyphen b --gmaf --maf_1kg --maf_esp --regulatory --plugin ExAC,${VEP_DATA}/ExAC.r0.3.1.sites.vep.vcf.gz
+${BGZIP} ${OUTP}/${BAMID}.vep.vcf
+${TABIX} ${OUTP}/${BAMID}.vep.vcf.gz
+
+# Convert to BCF
+${BCF} view -O b -o ${OUTP}/${BAMID}.vep.bcf ${OUTP}/${BAMID}.vep.vcf.gz
+${BCF} index ${OUTP}/${BAMID}.vep.bcf
+rm ${OUTP}/${BAMID}.vep.vcf.gz ${OUTP}/${BAMID}.vep.vcf.gz.tbi ${OUTP}/${BAMID}.norm.vcf.gz ${OUTP}/${BAMID}.norm.vcf.gz.tbi
 
 # Clean-up
 rm -rf ${TMP}
