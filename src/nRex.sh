@@ -19,7 +19,7 @@ shift
 THREADS=4
 
 # Programs
-PICARD=${BASEDIR}/picard/build/libs/picard.jar
+PICARD=${BASEDIR}/picard/picard.jar
 SAM=${BASEDIR}/samtools/samtools
 BCF=${BASEDIR}/bcftools/bcftools
 BWA=${BASEDIR}/bwa/bwa
