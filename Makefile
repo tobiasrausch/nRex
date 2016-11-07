@@ -45,4 +45,4 @@ clean:
 	cd src/bcftools && make clean
 	cd src/freebayes && make clean
 	cd src/bamStats && make clean
-	rm -rf $(TARGETS) src/perl/ src/java/ src/vep/ src/picard/
+	rm -rf $(TARGETS) src/perl/ src/vep/ src/picard/
