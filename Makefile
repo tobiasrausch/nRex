@@ -19,7 +19,7 @@ all:   	$(TARGETS)
 	mkdir -p src/vep/cache && cd src/vep/cache/ && wget ftp://ftp.broadinstitute.org/pub/ExAC_release/release0.3.1/ExAC.r0.3.1.sites.vep.vcf.gz && wget ftp://ftp.ensembl.org/pub/release-86/variation/VEP/homo_sapiens_vep_86_GRCh37.tar.gz && tar -izxf homo_sapiens_vep_86_GRCh37.tar.gz && rm homo_sapiens_vep_86_GRCh37.tar.gz && cd ${PBASE}/src/vep/ && wget https://github.com/Ensembl/ensembl-tools/archive/release/86.tar.gz && tar -zxf 86.tar.gz --starting-file variant_effect_predictor --transform='s|.*/|./|g' && rm 86.tar.gz && export PERL5LIB=${PBASE}/src/perl/lib/perl5/:${PBASE}/src/perl/lib/5.24.0/ && export PATH=${PBASE}/src/htslib:${PBASE}/src/samtools:${PBASE}/src/bcftools:${PBASE}/src/perl/bin:${PATH} && sed -i '0,/ok = <>;/s//ok = "y";/' INSTALL.pl && perl INSTALL.pl -v 86 --NO_HTSLIB --CONVERT --AUTO afp --SPECIES homo_sapiens --ASSEMBLY GRCh37 --PLUGINS ExAC --DESTDIR ${PBASE}/src/vep/ --CACHEDIR ${PBASE}/src/vep/cache && tabix ${PBASE}/src/vep/cache/ExAC.r0.3.1.sites.vep.vcf.gz && cd ../../ && touch .vep
 
 .picard:
-	mkdir -p src/picard/ && cd src/picard && wget 'https://github.com/broadinstitute/picard/releases/download/2.7.1/picard.jar' && cd ../../ && touch .picard
+	mkdir -p src/picard/ && cd src/picard && wget -O picard.jar 'https://github.com/broadinstitute/picard/releases/download/2.7.1/picard.jar' && cd ../../ && touch .picard
 
 .htslib: $(HTSLIBSOURCES)
 	cd src/htslib && make && make lib-static && cd ../../ && touch .htslib
