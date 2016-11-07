@@ -8,7 +8,7 @@ BSTATSSOURCES = $(wildcard src/bamStats/src/*.h)
 PBASE=$(shell pwd)
 
 # Targets
-TARGETS = .java .perl .vep .picard .htslib .bwa .samtools .bcftools .freebayes .bamStats
+TARGETS = .perl .vep .picard .htslib .bwa .samtools .bcftools .freebayes .bamStats
 
 all:   	$(TARGETS)
 
