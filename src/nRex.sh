@@ -36,7 +36,7 @@ JAVA=java
 DSTR=$(date +'%a_%y%m%d_%H%M')
 export TMP=/tmp/tmp_nrex_${DSTR}
 mkdir -p ${TMP}
-JAVAOPT="-Xms4g -Xmx32g -XX:ParallelGCThreads=4 -Djava.io.tmpdir=${TMP}"
+JAVAOPT="-Xms4g -Xmx8g -XX:ParallelGCThreads=4 -Djava.io.tmpdir=${TMP}"
 PICARDOPT="MAX_RECORDS_IN_RAM=5000000 TMP_DIR=${TMP} VALIDATION_STRINGENCY=SILENT"
 
 # Align
