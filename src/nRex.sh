@@ -30,7 +30,7 @@ TABIX=${BASEDIR}/htslib/tabix
 BGZIP=${BASEDIR}/htslib/bgzip
 VEP=${BASEDIR}/vep/variant_effect_predictor.pl
 VEP_DATA=${BASEDIR}/vep/cache
-JAVA=/g/software/bin/java-8
+JAVA=java
 
 # Tmp directory
 DSTR=$(date +'%a_%y%m%d_%H%M')

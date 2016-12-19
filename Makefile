@@ -1,3 +1,11 @@
+SEQTK_ROOT ?= ${PWD}/src/htslib/
+
+CXX=g++
+CXXFLAGS += -isystem ${SEQTK_ROOT} -pedantic -W -Wall -Wno-unknown-pragmas -fno-strict-aliasing
+LDFLAGS += -L${SEQTK_ROOT}
+LDFLAGS += -lhts -lz -Wl,-rpath,${SEQTK_ROOT}
+CXXFLAGS += -O3 -fno-tree-vectorize -DNDEBUG -D__STDC_LIMIT_MACROS
+
 # External sources
 HTSLIBSOURCES = $(wildcard src/htslib/*.c) $(wildcard src/htslib/*.h)
 BWASOURCES = ${wildcard src/bwa/*.c) $(wildcard src/bwa/*.h)
@@ -5,10 +13,11 @@ SAMSOURCES = $(wildcard src/samtools/*.c) $(wildcard src/samtools/*.h)
 BCFSOURCES = $(wildcard src/bcftools/*.c) $(wildcard src/bcftools/*.h)
 FREEBAYSOURCES = $(wildcard src/freebayes/src/*.cpp) $(wildcard src/freebayes/src/*.h)
 BSTATSSOURCES = $(wildcard src/bamStats/src/*.h)
+NREXSOURCES = $(wildcard src/*.cpp)
 PBASE=$(shell pwd)
 
 # Targets
-TARGETS = .perl .vep .picard .htslib .bwa .samtools .bcftools .freebayes .bamStats
+TARGETS = .perl .vep .picard .htslib .bwa .samtools .bcftools .freebayes .bamStats src/nRex
 
 all:   	$(TARGETS)
 
@@ -38,6 +47,9 @@ all:   	$(TARGETS)
 
 .bamStats: $(BSTATSSOURCES)
 	cd src/bamStats && make all && cd ../../ && touch .bamStats
+
+src/nRex: $(NREXSOURCES) .htslib
+	$(CXX) $(CXXFLAGS) $@.cpp -o $@ $(LDFLAGS)
 
 clean:
 	cd src/htslib && make clean
