@@ -7,7 +7,9 @@
 .bamStats
 .vep
 .bwa
+.exac
+.egenome
+src/vepcache
 src/perl
-src/vep
 src/picard
 src/nRex

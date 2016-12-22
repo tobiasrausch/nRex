@@ -175,11 +175,15 @@ int main(int argc, char **argv) {
 	for(TStrParts::const_iterator mgIt = mgenes.begin(); mgIt != mgenes.end(); ++mgIt) {
 	  TStrParts vals;
 	  boost::split(vals, *mgIt, boost::is_any_of(std::string("|")));
-	  float popmax = 0;
-	  std::string tmp[] = {"AFR_MAF", "AMR_MAF", "EAS_MAF", "EUR_MAF", "SAS_MAF", "AA_MAF", "EA_MAF", "ExAC_AF_AFR", "ExAC_AF_AMR", "ExAC_AF_EAS", "ExAC_AF_NFE", "ExAC_AF_SAS"};
+	  // Debug
+	  //for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt)
+	  //if (cIt->second < (int32_t) vals.size()) std::cout << cIt->first << ',' << vals[cIt->second] << std::endl;
+	  float popmax = 0;	  
+	  std::string tmp[] = {"AFR_AF", "AMR_AF", "EAS_AF", "EUR_AF", "SAS_AF", "AA_AF", "EA_AF", "ExAC_AFR_AF", "ExAC_AMR_AF", "ExAC_EAS_AF", "ExAC_NFE_AF", "ExAC_SAS_AF"};
 	  typedef std::set<std::string> TAfSet;
 	  TAfSet afs(tmp, tmp + sizeof(tmp) / sizeof(tmp[0]));
 	  for(typename TAfSet::const_iterator afIt = afs.begin(); afIt != afs.end(); ++afIt) {
+	    if (cmap.find(*afIt) == cmap.end()) std::cerr << *afIt << " does not exist!" << std::endl;
 	    std::string afstr(vals[cmap.find(*afIt)->second]);
 	    TStrParts afparts;
 	    boost::split(afparts, afstr, boost::is_any_of(std::string("&")));
@@ -207,17 +211,18 @@ int main(int argc, char **argv) {
 	  if (vals[cmap.find("IMPACT")->second].size()) impact = vals[cmap.find("IMPACT")->second];
 	  std::string exvar("NA");
 	  if (vals[cmap.find("Existing_variation")->second].size()) exvar = vals[cmap.find("Existing_variation")->second];
-	  int32_t impscore = 0;
-	  if (impact == "LOW") impscore = 1;
+	  int32_t impscore = -1;
+	  if (impact == "NA") impscore = 0;
+	  else if (impact == "LOW") impscore = 1;
 	  else if (impact == "MODIFIER") impscore = 2;
 	  else if (impact == "MODERATE") impscore = 3;
-	  else if (impact == "HIGH") impscore = 4;	  
+	  else if (impact == "HIGH") impscore = 4;
 	  else {
 	    std::cerr << "Unknown IMPACT!" << std::endl;
 	    return - 1;
 	  }
 	  //for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt) std::cout << cIt->first << ',' << vals[cIt->second] << std::endl;
-
+	  
 	  // Candidate variant ?
 	  if ((popmax < 0.01) && (candidateVar(vals, cmap)) && (impscore > prevImpact)) {	    
 	    std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t" << rec->d.allele[1] << "\t" << exvar << "\t" << rareCarrier << "\t" << gtstr << "\t" << vals[cmap.find("SYMBOL")->second] << "\t" << vals[cmap.find("BIOTYPE")->second] << "\t" << vals[cmap.find("Consequence")->second] << "\t" << clinsig << "\t" << popmax << "\t" << vals[cmap.find("HGVSc")->second] << "\t" << hgvsp << "\t" << impact << "\t" << carrier << "\t" << af << "\t" << missingRate << std::endl;
