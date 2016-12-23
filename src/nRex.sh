@@ -94,7 +94,7 @@ ${TABIX} ${OUTP}/${BAMID}.norm.vcf.gz
 rm ${OUTP}/${BAMID}.bcf
 
 # VEP
-perl ${VEP} --species homo_sapiens --assembly GRCh37 --offline --no_progress --no_stats --sift b --polyphen b --ccds --hgvs --symbol --numbers --regulatory --canonical --protein --biotype --tsl --appris --gene_phenotype --af --af_1kg --af_esp --af_exac --pubmed --variant_class --no_escape --vcf --minimal --dir ${VEP_DATA} --fasta ${VEP_DATA}/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa --input_file ${OUTP}/${BAMID}.norm.vcf.gz --output_file ${OUTP}/${BAMID}.vep.vcf --plugin ExAC,${VEP_DATA}/ExAC.r0.3.1.sites.vep.vcf.gz --plugin Blosum62 --plugin CSN --plugin Downstream --plugin GO --plugin LoFtool,${BASEDIR}/../bed/LoFtool_scores.txt --plugin miRNA --plugin TSSDistance
+perl ${VEP} --species homo_sapiens --assembly GRCh37 --offline --no_progress --no_stats --sift b --polyphen b --ccds --hgvs --symbol --numbers --regulatory --canonical --protein --biotype --tsl --appris --gene_phenotype --af --af_1kg --af_esp --af_exac --pubmed --variant_class --no_escape --vcf --minimal --dir ${VEP_DATA} --fasta ${VEP_DATA}/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa --input_file ${OUTP}/${BAMID}.norm.vcf.gz --output_file ${OUTP}/${BAMID}.vep.vcf --plugin ExAC,${VEP_DATA}/ExAC.r0.3.1.sites.vep.vcf.gz --plugin Blosum62 --plugin CSN --plugin Downstream --plugin GO --plugin LoFtool,${BASEDIR}/../bed/LoFtool_scores.txt --plugin TSSDistance
 ${BGZIP} ${OUTP}/${BAMID}.vep.vcf
 ${TABIX} ${OUTP}/${BAMID}.vep.vcf.gz
 
