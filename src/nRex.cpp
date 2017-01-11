@@ -124,7 +124,10 @@ int main(int argc, char **argv) {
   int32_t ncsq = 0;
   char* csq = NULL;
 
-  std::cout << "chr\tpos\tref\talt\texisting_variation\tsingleton\tgt\tsymbol\tbiotype\tconsequence\tclin_sig\tpopmax\thgvsc\thgvsp\timpact\tcarrier\taf\tmissingrate" << std::endl;
+  std::cout << "chr\tpos\tref\talt\texisting_variation\tsingleton\tgt\tsymbol\texon\tstrand\t";
+  std::cout << "biotype\tconsequence\tclin_sig\tpopmax\thgvsc\thgvsp\timpact\t";
+  std::cout << "polyphen\tsift\tLoFtool\tcanonical\t";
+  std::cout << "carrier\taf\tmissingrate" << std::endl;
     
   // Parse VCF records
   bcf1_t* rec = bcf_init();
@@ -205,12 +208,34 @@ int main(int argc, char **argv) {
 	  }
 	  std::string clinsig("unknown");
 	  if (vals[cmap.find("CLIN_SIG")->second].size()) clinsig = vals[cmap.find("CLIN_SIG")->second];
+	  std::string polyphen("unknown");
+	  if (vals[cmap.find("PolyPhen")->second].size()) polyphen = vals[cmap.find("PolyPhen")->second];
+	  std::string sift("unknown");
+	  if (vals[cmap.find("SIFT")->second].size()) sift = vals[cmap.find("SIFT")->second];
+	  std::string loftool("NA");
+	  if (vals[cmap.find("LoFtool")->second].size()) loftool = vals[cmap.find("LoFtool")->second];
 	  std::string hgvsp("NA");
 	  if (vals[cmap.find("HGVSp")->second].size()) hgvsp = vals[cmap.find("HGVSp")->second];
+	  std::string hgvsc("NA");
+	  if (vals[cmap.find("HGVSc")->second].size()) hgvsc = vals[cmap.find("HGVSc")->second];
 	  std::string impact("NA");
 	  if (vals[cmap.find("IMPACT")->second].size()) impact = vals[cmap.find("IMPACT")->second];
 	  std::string exvar("NA");
 	  if (vals[cmap.find("Existing_variation")->second].size()) exvar = vals[cmap.find("Existing_variation")->second];
+	  std::string strand("NA");
+	  if (vals[cmap.find("STRAND")->second].size()) strand = vals[cmap.find("STRAND")->second];
+	  std::string exon("NA");
+	  if (vals[cmap.find("EXON")->second].size()) exon = vals[cmap.find("EXON")->second];
+	  std::string canonical("NA");
+	  if (vals[cmap.find("CANONICAL")->second].size()) canonical = vals[cmap.find("CANONICAL")->second];
+	  std::string biotyp("NA");
+	  if (vals[cmap.find("BIOTYPE")->second].size()) biotyp = vals[cmap.find("BIOTYPE")->second];
+	  std::string symb("NA");
+	  if (vals[cmap.find("SYMBOL")->second].size()) symb = vals[cmap.find("SYMBOL")->second];
+	  std::string cons("NA");
+	  if (vals[cmap.find("Consequence")->second].size()) cons = vals[cmap.find("Consequence")->second];
+	  
+	  
 	  int32_t impscore = -1;
 	  if (impact == "NA") impscore = 0;
 	  else if (impact == "LOW") impscore = 1;
@@ -224,8 +249,14 @@ int main(int argc, char **argv) {
 	  //for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt) std::cout << cIt->first << ',' << vals[cIt->second] << std::endl;
 	  
 	  // Candidate variant ?
-	  if ((popmax < 0.01) && (candidateVar(vals, cmap)) && (impscore > prevImpact)) {	    
-	    std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t" << rec->d.allele[1] << "\t" << exvar << "\t" << rareCarrier << "\t" << gtstr << "\t" << vals[cmap.find("SYMBOL")->second] << "\t" << vals[cmap.find("BIOTYPE")->second] << "\t" << vals[cmap.find("Consequence")->second] << "\t" << clinsig << "\t" << popmax << "\t" << vals[cmap.find("HGVSc")->second] << "\t" << hgvsp << "\t" << impact << "\t" << carrier << "\t" << af << "\t" << missingRate << std::endl;
+	  if ((popmax < 0.01) && (candidateVar(vals, cmap)) && (impscore > prevImpact)) {
+	    std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t";
+	    std::cout << rec->d.allele[1] << "\t" << exvar << "\t" << rareCarrier << "\t" << gtstr << "\t";
+	    std::cout << symb << "\t" << exon << "\t" << strand << "\t" << biotyp << "\t";
+	    std::cout << cons << "\t" << clinsig << "\t";
+	    std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
+	    std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << canonical << "\t";
+	    std::cout << carrier << "\t" << af << "\t" << missingRate << std::endl;
 	    prevImpact = impscore;
 	  }
 	}

@@ -61,12 +61,15 @@ do
 
     # Mark duplicates
     ${JAVA} ${JAVAOPT} -jar ${PICARD} MarkDuplicates I=${OUTP}/${BAMID}.srt.clean.bam O=${OUTP}/${BAMID}.srt.clean.rmdup.bam M=${OUTP}/${OUTP}.markdups.log PG=null MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 ${PICARDOPT} && rm ${OUTP}/${BAMID}.srt.clean.bam* && ${SAM} index ${OUTP}/${BAMID}.srt.clean.rmdup.bam
-
+    # No mark duplicates (Haloplex)
+    # mv ${OUTP}/${BAMID}.srt.clean.bam ${OUTP}/${BAMID}.srt.clean.rmdup.bam && ${SAM} index ${OUTP}/${BAMID}.srt.clean.rmdup.bam
+    
     # Run stats using unfiltered BAM
     ${SAM} idxstats ${OUTP}/${BAMID}.srt.clean.rmdup.bam > ${OUTP}/${OUTP}.idxstats
     ${SAM} flagstat ${OUTP}/${BAMID}.srt.clean.rmdup.bam > ${OUTP}/${OUTP}.flagstat
 
     # Filter duplicates, unmapped reads, chrM and unplaced contigs
+    #CHRS=`cat ${BASEDIR}/../bed/haloplex.bed | cut -f 1 | sort -k1,1V -k2,2n | uniq | tr '\n' ' '`
     CHRS=`cat ${BASEDIR}/../bed/exome.bed | cut -f 1 | sort -k1,1V -k2,2n | uniq | tr '\n' ' '`
     ${SAM} view -F 1024 -b ${OUTP}/${BAMID}.srt.clean.rmdup.bam ${CHRS} > ${OUTP}/${BAMID}.final.bam
     ${SAM} index ${OUTP}/${BAMID}.final.bam
@@ -74,6 +77,7 @@ do
 
     # Run stats using filtered BAM, TSS enrichment, error rates, etc.
     ${BAMSTATS} -b ${BASEDIR}/../bed/exome.bed -r ${GENOME} -o ${OUTP}/${OUTP}.bamStats ${OUTP}/${BAMID}.final.bam
+    #${BAMSTATS} -b ${BASEDIR}/../bed/haloplex.bed -r ${GENOME} -o ${OUTP}/${OUTP}.bamStats ${OUTP}/${BAMID}.final.bam
 
     # Collect BAMs
     BAMLIST=${BAMLIST}","${OUTP}/${BAMID}.final.bam
