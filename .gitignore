@@ -9,6 +9,8 @@
 .bwa
 .exac
 .egenome
+.maxentscan
+.vt
 src/vepcache
 src/perl
 src/picard

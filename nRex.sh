@@ -10,7 +10,7 @@ then
     echo "Contact: Tobias Rausch (rausch@embl.de)"
     echo "**********************************************************************"
     echo ""
-    echo "Usage: $0 <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz> ..."
+    echo "Usage: $0 <wgs|wex|haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz> ..."
     echo ""
     exit -1
 fi

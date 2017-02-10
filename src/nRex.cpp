@@ -23,6 +23,7 @@ Contact: Tobias Rausch (rausch@embl.de)
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <fstream>
 #include <iostream>
 #include <set>
 #include <vector>
@@ -72,15 +73,9 @@ getCSQ(std::string const& header, TMap& cmap) {
 }
 
 
-template<typename TStrParts, typename TMap>
+template<typename TStrParts, typename TMap, typename TConsequence>
 bool
-candidateVar(TStrParts const& vals, TMap const& cmap) {
-  // Filter sets
-  std::string tmp[] = {"transcript_ablation", "splice_acceptor_variant", "splice_donor_variant", "stop_gained", "frameshift_variant", "stop_lost", "start_lost", "transcript_amplification", "inframe_insertion", "inframe_deletion", "missense_variant", "protein_altering_variant", "regulatory_region_ablation"};
-  //std::string tmp[] = {"TF_binding_site_variant"};
-  std::set<std::string> consequence_filter(tmp, tmp + sizeof(tmp) / sizeof(tmp[0]));
-      
-  // Filter Consequence
+candidateVar(TStrParts const& vals, TMap const& cmap, TConsequence const& consequence_filter) {
   bool pass = false;
   TStrParts consvals;
   boost::split(consvals, vals[cmap.find("Consequence")->second], boost::is_any_of(std::string("&")));
@@ -90,17 +85,37 @@ candidateVar(TStrParts const& vals, TMap const& cmap) {
       break;
     }
   }
-  
   return pass;
 }
 
 
 int main(int argc, char **argv) {
-  if (argc != 2) {
-    std::cerr << "Usage: " << argv[0] << " <snps.vep.bcf> " << std::endl;
+  if (argc < 2) {
+    std::cerr << "Usage: " << argv[0] << " <snps.vep.bcf> [<selected.transcripts>]" << std::endl;
     return 1; 
   }
 
+  // Load selected transcripts
+  std::set<std::string> seltrans;
+  if (argc == 3) {
+    std::string line;
+    std::ifstream ifile(argv[2]);
+    if (ifile.is_open()) {
+      while (getline(ifile, line)) seltrans.insert(line);
+      ifile.close();
+    }
+  }
+
+  // Limit output up to this severity (maxSOterm)
+  std::string maxSOterm = "splice_region_variant";
+  std::string consSO[] = {"transcript_ablation","splice_acceptor_variant","splice_donor_variant","stop_gained","frameshift_variant","stop_lost","start_lost","transcript_amplification","inframe_insertion","inframe_deletion","missense_variant","protein_altering_variant","splice_region_variant","incomplete_terminal_codon_variant","stop_retained_variant","synonymous_variant","coding_sequence_variant","mature_miRNA_variant","5_prime_UTR_variant","3_prime_UTR_variant","non_coding_transcript_exon_variant","intron_variant","NMD_transcript_variant","non_coding_transcript_variant","upstream_gene_variant","downstream_gene_variant","TFBS_ablation","TFBS_amplification","TF_binding_site_variant","regulatory_region_ablation","regulatory_region_amplification","feature_elongation","regulatory_region_variant","feature_truncation","intergenic_variant"};
+  std::vector<std::string> consequence_all(consSO, consSO + sizeof(consSO) / sizeof(consSO[0]));
+  std::set<std::string> consequence_filter;
+  for(uint32_t i = 0; i < consequence_all.size(); ++i) {
+    consequence_filter.insert(consequence_all[i]);
+    if (consequence_all[i] == maxSOterm) break;
+  }
+  
   // Load bcf file
   htsFile* ifile = bcf_open(argv[1], "r");
   if (ifile == NULL) {
@@ -126,9 +141,9 @@ int main(int argc, char **argv) {
 
   std::cout << "chr\tpos\tref\talt\texisting_variation\tsingleton\tgt\tsymbol\texon\tstrand\t";
   std::cout << "biotype\tconsequence\tclin_sig\tpopmax\thgvsc\thgvsp\timpact\t";
-  std::cout << "polyphen\tsift\tLoFtool\tcanonical\t";
+  std::cout << "polyphen\tsift\tLoFtool\tMaxEntScan(Ref,Alt,Diff)\tcanonical\t";
   std::cout << "carrier\taf\tmissingrate" << std::endl;
-    
+
   // Parse VCF records
   bcf1_t* rec = bcf_init();
   while (bcf_read(ifile, hdr, rec) == 0) {
@@ -174,14 +189,23 @@ int main(int argc, char **argv) {
 	if (bcf_get_info_string(hdr, rec, "CSQ", &csq, &ncsq) > 0) vep = std::string(csq);
 	TStrParts mgenes;
 	boost::split(mgenes, vep, boost::is_any_of(std::string(",")));
-	int32_t prevImpact = 0;
 	for(TStrParts::const_iterator mgIt = mgenes.begin(); mgIt != mgenes.end(); ++mgIt) {
 	  TStrParts vals;
 	  boost::split(vals, *mgIt, boost::is_any_of(std::string("|")));
+	  std::string transcript("NA");
+	  if (vals[cmap.find("Feature")->second].size()) transcript = vals[cmap.find("Feature")->second];
+
+	  // Is this a selected transcript?
+	  if ((!seltrans.empty()) && (seltrans.find(transcript) == seltrans.end())) continue;
+
+	  // Is this a candidate consequence?
+	  if (!candidateVar(vals, cmap, consequence_filter)) continue;
+	  
 	  // Debug
 	  //for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt)
 	  //if (cIt->second < (int32_t) vals.size()) std::cout << cIt->first << ',' << vals[cIt->second] << std::endl;
-	  float popmax = 0;	  
+	  float popmax = 0;
+	  //std::string tmp[] = {"AFR_MAF", "AMR_MAF", "EAS_MAF", "EUR_MAF", "SAS_MAF", "AA_MAF", "EA_MAF", "ExAC_AF_AFR", "ExAC_AF_AMR", "ExAC_AF_EAS", "ExAC_AF_NFE", "ExAC_AF_SAS"};
 	  std::string tmp[] = {"AFR_AF", "AMR_AF", "EAS_AF", "EUR_AF", "SAS_AF", "AA_AF", "EA_AF", "ExAC_AFR_AF", "ExAC_AMR_AF", "ExAC_EAS_AF", "ExAC_NFE_AF", "ExAC_SAS_AF"};
 	  typedef std::set<std::string> TAfSet;
 	  TAfSet afs(tmp, tmp + sizeof(tmp) / sizeof(tmp[0]));
@@ -213,7 +237,11 @@ int main(int argc, char **argv) {
 	  std::string sift("unknown");
 	  if (vals[cmap.find("SIFT")->second].size()) sift = vals[cmap.find("SIFT")->second];
 	  std::string loftool("NA");
-	  if (vals[cmap.find("LoFtool")->second].size()) loftool = vals[cmap.find("LoFtool")->second];
+	  if ((cmap.find("LoFtool") != cmap.end()) && (vals[cmap.find("LoFtool")->second].size())) loftool = vals[cmap.find("LoFtool")->second];
+	  std::string mescan("NA");
+	  if ((cmap.find("MaxEntScan_diff") != cmap.end()) && (vals[cmap.find("MaxEntScan_diff")->second].size())) {
+	    mescan = vals[cmap.find("MaxEntScan_ref")->second] + "," + vals[cmap.find("MaxEntScan_alt")->second] + "," + vals[cmap.find("MaxEntScan_diff")->second];
+	  }
 	  std::string hgvsp("NA");
 	  if (vals[cmap.find("HGVSp")->second].size()) hgvsp = vals[cmap.find("HGVSp")->second];
 	  std::string hgvsc("NA");
@@ -225,7 +253,10 @@ int main(int argc, char **argv) {
 	  std::string strand("NA");
 	  if (vals[cmap.find("STRAND")->second].size()) strand = vals[cmap.find("STRAND")->second];
 	  std::string exon("NA");
-	  if (vals[cmap.find("EXON")->second].size()) exon = vals[cmap.find("EXON")->second];
+	  if (vals[cmap.find("EXON")->second].size()) {
+	    exon = vals[cmap.find("EXON")->second];
+	    std::replace(exon.begin(), exon.end(), '/', ',');
+	  }
 	  std::string canonical("NA");
 	  if (vals[cmap.find("CANONICAL")->second].size()) canonical = vals[cmap.find("CANONICAL")->second];
 	  std::string biotyp("NA");
@@ -235,29 +266,17 @@ int main(int argc, char **argv) {
 	  std::string cons("NA");
 	  if (vals[cmap.find("Consequence")->second].size()) cons = vals[cmap.find("Consequence")->second];
 	  
-	  
-	  int32_t impscore = -1;
-	  if (impact == "NA") impscore = 0;
-	  else if (impact == "LOW") impscore = 1;
-	  else if (impact == "MODIFIER") impscore = 2;
-	  else if (impact == "MODERATE") impscore = 3;
-	  else if (impact == "HIGH") impscore = 4;
-	  else {
-	    std::cerr << "Unknown IMPACT!" << std::endl;
-	    return - 1;
-	  }
 	  //for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt) std::cout << cIt->first << ',' << vals[cIt->second] << std::endl;
 	  
-	  // Candidate variant ?
-	  if ((popmax < 0.01) && (candidateVar(vals, cmap)) && (impscore > prevImpact)) {
+	  // Below 1% population frequency
+	  if (popmax < 0.01) {
 	    std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t";
 	    std::cout << rec->d.allele[1] << "\t" << exvar << "\t" << rareCarrier << "\t" << gtstr << "\t";
 	    std::cout << symb << "\t" << exon << "\t" << strand << "\t" << biotyp << "\t";
 	    std::cout << cons << "\t" << clinsig << "\t";
 	    std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
-	    std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << canonical << "\t";
+	    std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << mescan << "\t" << canonical << "\t";
 	    std::cout << carrier << "\t" << af << "\t" << missingRate << std::endl;
-	    prevImpact = impscore;
 	  }
 	}
       }

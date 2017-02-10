@@ -26,3 +26,6 @@
 	path = src/vep
 	url = https://github.com/Ensembl/ensembl-vep.git
 	ignore = dirty
+[submodule "src/vt"]
+	path = src/vt
+	url = https://github.com/atks/vt.git
