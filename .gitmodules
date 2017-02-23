@@ -2,10 +2,6 @@
 	path = src/freebayes
 	url = https://github.com/ekg/freebayes.git
 	ignore = dirty
-[submodule "src/bwa"]
-	path = src/bwa
-	url = https://github.com/lh3/bwa.git
-	ignore = dirty
 [submodule "src/vep"]
 	path = src/vep
 	url = https://github.com/Ensembl/ensembl-vep.git
