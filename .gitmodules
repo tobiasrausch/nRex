@@ -1,7 +1,3 @@
-[submodule "src/samtools"]
-	path = src/samtools
-	url = https://github.com/samtools/samtools.git
-	ignore = dirty
 [submodule "src/freebayes"]
 	path = src/freebayes
 	url = https://github.com/ekg/freebayes.git
