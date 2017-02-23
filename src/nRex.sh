@@ -6,39 +6,38 @@ then
     exit -1
 fi
 
-SCRIPT=$(readlink -f "$0")
-BASEDIR=$(dirname "$SCRIPT")
-
 export PERL5LIB=${BASEDIR}/perl/lib/perl5/:${BASEDIR}/perl/lib/5.24.0/
 export PATH=${BASEDIR}/perl/bin:${PATH}
 
+SCRIPT=$(readlink -f "$0")
+BASEDIR=$(dirname "$SCRIPT")
+
+# CMD parameters
 ATYPE=${1}
+GENOME=${2}
+OUTP=${3}
 shift
-GENOME=${1}
 shift
-OUTP=${1}
 shift
 THREADS=4
 
 # Programs
-VT=${BASEDIR}/vt/vt
 PICARD=${BASEDIR}/picard/picard.jar
-SAM=${BASEDIR}/samtools/samtools
-BCF=${BASEDIR}/bcftools/bcftools
-BWA=${BASEDIR}/bwa/bwa
-BAMSTATS=${BASEDIR}/bamStats/src/bamStats
-BAMSTATR=${BASEDIR}/bamStats/R
 FREEBAYES=${BASEDIR}/freebayes/bin/freebayes
-TABIX=${BASEDIR}/htslib/tabix
-BGZIP=${BASEDIR}/htslib/bgzip
 VEP=${BASEDIR}/vep/vep.pl
 VEP_DATA=${BASEDIR}/vepcache
-JAVA=java
 
 # Tmp directory
 DSTR=$(date +'%a_%y%m%d_%H%M')
-export TMP=/tmp/tmp_nrex_${DSTR}
-mkdir -p ${TMP}
+if [ -n "${SCRATCHDIR}" ]
+then
+    export TMP=${SCRATCHDIR}
+    echo "scratch directory" ${SCRATCHDIR}
+else
+    #export TMP=/tmp/tmp_atac_${DSTR}
+    export TMP=/g/solexa/home/rausch/scripts/cpp/nRex/tmp/tmp_nrex_${DSTR}
+    mkdir -p ${TMP}
+fi
 JAVAOPT="-Xms4g -Xmx16g -XX:ParallelGCThreads=4 -Djava.io.tmpdir=${TMP}"
 PICARDOPT="MAX_RECORDS_IN_RAM=5000000 TMP_DIR=${TMP} VALIDATION_STRINGENCY=SILENT"
 
@@ -54,25 +53,25 @@ do
     BAMID=`echo ${OUTP} | sed "s/$/.align${i}/"`
 
     # BWA
-    ${BWA} mem -t ${THREADS} -R "@RG\tID:${OUTP}\tSM:${OUTP}" ${GENOME} ${SAMPLEARR[$i]} ${SAMPLEARR[$j]} | ${SAM} view -bT ${GENOME} - > ${OUTP}/${BAMID}.bam
+    bwa mem -t ${THREADS} -R "@RG\tID:${OUTP}\tSM:${OUTP}" ${GENOME} ${SAMPLEARR[$i]} ${SAMPLEARR[$j]} | samtools view -bT ${GENOME} - > ${OUTP}/${BAMID}.bam
 
     # Sort & Index
-    ${SAM} sort -o ${OUTP}/${BAMID}.srt.bam ${OUTP}/${BAMID}.bam && rm ${OUTP}/${BAMID}.bam && ${SAM} index ${OUTP}/${BAMID}.srt.bam
+    samtools sort -o ${OUTP}/${BAMID}.srt.bam ${OUTP}/${BAMID}.bam && rm ${OUTP}/${BAMID}.bam && samtools index ${OUTP}/${BAMID}.srt.bam
 
     # Clean .bam file
-    ${JAVA} ${JAVAOPT} -jar ${PICARD} CleanSam I=${OUTP}/${BAMID}.srt.bam O=${OUTP}/${BAMID}.srt.clean.bam ${PICARDOPT} && rm ${OUTP}/${BAMID}.srt.bam*
+    java ${JAVAOPT} -jar ${PICARD} CleanSam I=${OUTP}/${BAMID}.srt.bam O=${OUTP}/${BAMID}.srt.clean.bam ${PICARDOPT} && rm ${OUTP}/${BAMID}.srt.bam*
 
     # Mark duplicates
     if [ ${ATYPE} == "haloplex" ]
     then
 	mv ${OUTP}/${BAMID}.srt.clean.bam ${OUTP}/${BAMID}.srt.clean.rmdup.bam && ${SAM} index ${OUTP}/${BAMID}.srt.clean.rmdup.bam
     else
-	${JAVA} ${JAVAOPT} -jar ${PICARD} MarkDuplicates I=${OUTP}/${BAMID}.srt.clean.bam O=${OUTP}/${BAMID}.srt.clean.rmdup.bam M=${OUTP}/${OUTP}.markdups.log PG=null MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 ${PICARDOPT} && rm ${OUTP}/${BAMID}.srt.clean.bam* && ${SAM} index ${OUTP}/${BAMID}.srt.clean.rmdup.bam
+	java ${JAVAOPT} -jar ${PICARD} MarkDuplicates I=${OUTP}/${BAMID}.srt.clean.bam O=${OUTP}/${BAMID}.srt.clean.rmdup.bam M=${OUTP}/${OUTP}.markdups.log PG=null MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 ${PICARDOPT} && rm ${OUTP}/${BAMID}.srt.clean.bam* && ${SAM} index ${OUTP}/${BAMID}.srt.clean.rmdup.bam
     fi
     
     # Run stats using unfiltered BAM
-    ${SAM} idxstats ${OUTP}/${BAMID}.srt.clean.rmdup.bam > ${OUTP}/${OUTP}.idxstats
-    ${SAM} flagstat ${OUTP}/${BAMID}.srt.clean.rmdup.bam > ${OUTP}/${OUTP}.flagstat
+    samtools idxstats ${OUTP}/${BAMID}.srt.clean.rmdup.bam > ${OUTP}/${OUTP}.idxstats
+    samtools flagstat ${OUTP}/${BAMID}.srt.clean.rmdup.bam > ${OUTP}/${OUTP}.flagstat
 
     # Filter duplicates, unmapped reads, chrM and unplaced contigs
     if [ ${ATYPE} == "haloplex" ]
@@ -81,16 +80,16 @@ do
     else
 	CHRS=`cat ${BASEDIR}/../bed/exome.bed | cut -f 1 | sort -k1,1V -k2,2n | uniq | tr '\n' ' '`
     fi
-    ${SAM} view -F 1024 -b ${OUTP}/${BAMID}.srt.clean.rmdup.bam ${CHRS} > ${OUTP}/${BAMID}.final.bam
-    ${SAM} index ${OUTP}/${BAMID}.final.bam
+    samtools view -F 1024 -b ${OUTP}/${BAMID}.srt.clean.rmdup.bam ${CHRS} > ${OUTP}/${BAMID}.final.bam
+    samtools index ${OUTP}/${BAMID}.final.bam
     rm ${OUTP}/${BAMID}.srt.clean.rmdup.bam ${OUTP}/${BAMID}.srt.clean.rmdup.bam.bai
 
     # Run stats using filtered BAM, TSS enrichment, error rates, etc.
     if [ ${ATYPE} == "haloplex" ]
     then
-	${BAMSTATS} -b ${BASEDIR}/../bed/haloplex.bed -r ${GENOME} -o ${OUTP}/${OUTP}.bamStats ${OUTP}/${BAMID}.final.bam
+	alfred -b ${BASEDIR}/../bed/haloplex.bed -r ${GENOME} -o ${OUTP}/${OUTP}.bamStats ${OUTP}/${BAMID}.final.bam
     else
-	${BAMSTATS} -b ${BASEDIR}/../bed/exome.bed -r ${GENOME} -o ${OUTP}/${OUTP}.bamStats ${OUTP}/${BAMID}.final.bam
+	alfred -b ${BASEDIR}/../bed/exome.bed -r ${GENOME} -o ${OUTP}/${OUTP}.bamStats ${OUTP}/${BAMID}.final.bam
     fi
 
     # Collect BAMs
@@ -99,32 +98,38 @@ done
 
 # Freebayes
 ${FREEBAYES} --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.15 --fasta-reference ${GENOME} --genotype-qualities `echo ${BAMLIST} | sed 's/,/ -b /g'` -v ${OUTP}/${BAMID}.vcf
-${BGZIP} ${OUTP}/${BAMID}.vcf
-${TABIX} ${OUTP}/${BAMID}.vcf.gz
+bgzip ${OUTP}/${BAMID}.vcf
+tabix ${OUTP}/${BAMID}.vcf.gz
 
 # Normalize VCF
-${VT} normalize ${OUTP}/${BAMID}.vcf.gz -r ${GENOME} | ${VT} decompose_blocksub - | ${VT} decompose - | ${VT} uniq - | ${BGZIP} > ${OUTP}/${BAMID}.norm.vcf.gz
-${TABIX} ${OUTP}/${BAMID}.norm.vcf.gz
+vt normalize ${OUTP}/${BAMID}.vcf.gz -r ${GENOME} | vt decompose_blocksub - | vt decompose - | vt uniq - | bgzip > ${OUTP}/${BAMID}.norm.vcf.gz
+tabix ${OUTP}/${BAMID}.norm.vcf.gz
 rm ${OUTP}/${BAMID}.vcf.gz ${OUTP}/${BAMID}.vcf.gz.tbi
 
 # Fixed threshold filtering
 if [ ${ATYPE} == "haloplex" ]
 then
-    ${BCF} filter -O z -o ${OUTP}/${BAMID}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/AO<=2 || SAF<=1 || SAR<=1' ${OUTP}/${BAMID}.norm.vcf.gz
+    bcftools filter -O z -o ${OUTP}/${BAMID}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/AO<=2 || SAF<=1 || SAR<=1' ${OUTP}/${BAMID}.norm.vcf.gz
 else
-    ${BCF} filter -O z -o ${OUTP}/${BAMID}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/AO<=2 || SAF<=1 || SAR<=1 || RPR<=1 || RPL<=1' ${OUTP}/${BAMID}.norm.vcf.gz
+    bcftools filter -O z -o ${OUTP}/${BAMID}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/AO<=2 || SAF<=1 || SAR<=1 || RPR<=1 || RPL<=1' ${OUTP}/${BAMID}.norm.vcf.gz
 fi
+tabix ${OUTP}/${BAMID}.norm.filtered.vcf.gz
 rm ${OUTP}/${BAMID}.norm.vcf.gz ${OUTP}/${BAMID}.norm.vcf.gz.tbi
 
 # VEP
 perl ${VEP} --species homo_sapiens --assembly GRCh37 --offline --no_progress --no_stats --sift b --polyphen b --ccds --hgvs --symbol --numbers --regulatory --canonical --protein --biotype --tsl --appris --gene_phenotype --af --af_1kg --af_esp --af_exac --pubmed --variant_class --no_escape --vcf --minimal --dir ${VEP_DATA} --fasta ${VEP_DATA}/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa --input_file ${OUTP}/${BAMID}.norm.filtered.vcf.gz --output_file ${OUTP}/${BAMID}.vep.vcf --plugin ExAC,${VEP_DATA}/ExAC.r0.3.1.sites.vep.vcf.gz --plugin Blosum62 --plugin CSN --plugin Downstream --plugin GO --plugin LoFtool,${BASEDIR}/../bed/LoFtool_scores.txt --plugin TSSDistance --plugin MaxEntScan,${VEP_DATA}/Plugins/maxentscan/
-${BGZIP} ${OUTP}/${BAMID}.vep.vcf
-${TABIX} ${OUTP}/${BAMID}.vep.vcf.gz
+bgzip ${OUTP}/${BAMID}.vep.vcf
+tabix ${OUTP}/${BAMID}.vep.vcf.gz
 
 # Convert to BCF
-${BCF} view -O b -o ${OUTP}/${BAMID}.vep.bcf ${OUTP}/${BAMID}.vep.vcf.gz
-${BCF} index ${OUTP}/${BAMID}.vep.bcf
+bcftools view -O b -o ${OUTP}/${BAMID}.vep.bcf ${OUTP}/${BAMID}.vep.vcf.gz
+bcftools index ${OUTP}/${BAMID}.vep.bcf
 rm ${OUTP}/${BAMID}.vep.vcf.gz ${OUTP}/${BAMID}.vep.vcf.gz.tbi ${OUTP}/${BAMID}.norm.filtered.vcf.gz ${OUTP}/${BAMID}.norm.filtered.vcf.gz.tbi
 
 # Clean-up
-rm -rf ${TMP}
+if [ -n "${SCRATCHDIR}" ]
+then
+    ls ${SCRATCHDIR}
+else
+    rm -rf ${TMP}
+fi

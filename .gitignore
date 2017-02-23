@@ -1,17 +1,42 @@
-.bcftools
-.htslib
 .picard
-.samtools
 .freebayes
 .perl
-.bamStats
 .vep
-.bwa
 .exac
 .egenome
 .maxentscan
-.vt
+.fastqc
 src/vepcache
-src/perl
 src/picard
 src/nRex
+src/FastQC
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
