@@ -17,7 +17,7 @@ module -v > /dev/null 2>&1 || { echo >&2 "EasyBuild modules are required. Aborti
 module load Java
 module load SAMtools
 module load BCFtools
-module load bwa
+module load BWA
 module load BEDTools
 module load R-bundle-Bioconductor
 module load expat
