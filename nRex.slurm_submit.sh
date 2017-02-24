@@ -24,7 +24,6 @@ module load expat
 module load Boost
 module load HTSlib
 module load alfred
-module load Perl
 module load Python/2.7.12-foss-2016b
 
 # Fetch ATAC-Seq script

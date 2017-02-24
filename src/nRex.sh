@@ -15,11 +15,11 @@ then
     exit -1
 fi
 
-export PERL5LIB=${BASEDIR}/perl/lib/perl5/:${BASEDIR}/perl/lib/5.24.0/
-export PATH=${BASEDIR}/perl/bin:${PATH}
-
 SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
+
+export PERL5LIB=${BASEDIR}/perl/lib/perl5/:${BASEDIR}/perl/lib/5.24.0/
+export PATH=${BASEDIR}/perl/bin:${PATH}
 
 # CMD parameters
 ATYPE=${1}
