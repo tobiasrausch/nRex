@@ -1,14 +1,14 @@
 nRex
 ====
 
-nRex is a somatic single-nucleotide variant calling meta-method. It uses mpileup, freebayes and optionally GATK. If you can improve the current workflow please let me know.
+nRex is a germline & somatic single-nucleotide variant calling method. It uses FreeBayes and vt. If you can improve the current workflow please let me know.
 
 Installing nRex
 ---------------
 
 To build nRex you need to do the following:
 
-`git clone --recursive https://github.com/tobiasrausch/nRex.git`
+`git clone https://github.com/tobiasrausch/nRex.git`
 
 `cd nRex/`
 
@@ -20,6 +20,5 @@ Running nRex
 
 nRex needs the reference genome and one bam file each for the tumor and the normal sample.
 
-`./nRex.sh <ref.fa> <tumor.bam> <normal.bam> ...`
+`./src/nRex.sh <wgs|wex|haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>`
 
-There is also a dockerized nRex version available [here](https://registry.hub.docker.com/u/trausch/nrex/).
