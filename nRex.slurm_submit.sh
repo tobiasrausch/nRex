@@ -5,8 +5,8 @@
 #SBATCH -n 4                        # number of cores
 #SBATCH --mem 16000M                # memory pool for all cores
 #SBATCH -t 10-2:00                  # time (D-HH:MM)
-#SBATCH -o atac.%N.%j.out           # STDOUT
-#SBATCH -e atac.%N.%j.err           # STDERR
+#SBATCH -o nRex.%N.%j.out           # STDOUT
+#SBATCH -e nRex.%N.%j.err           # STDERR
 #SBATCH --mail-type=FAIL            # notifications for job done & fail
 #SBATCH --mail-user=rausch@embl.de  # send-to address
 
@@ -19,7 +19,7 @@ module load SAMtools
 module load BCFtools
 module load bwa
 module load BEDTools
-module load R
+module load R-bundle-Bioconductor
 module load expat
 module load Boost
 module load HTSlib

@@ -2,7 +2,16 @@
 
 if [ $# -lt 4 ]
 then
-    echo "Usage: $0 <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz> ..."
+    echo "**********************************************************************"
+    echo "nRex: Single-nucleotide variant calling."
+    echo "This program comes with ABSOLUTELY NO WARRANTY."
+    echo ""
+    echo "nRex (Version: 0.0.2)"
+    echo "Contact: Tobias Rausch (rausch@embl.de)"
+    echo "**********************************************************************"
+    echo ""
+    echo "Usage: $0 <wgs|wex|haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz> ..."
+    echo ""
     exit -1
 fi
 
