@@ -32,6 +32,7 @@ THREADS=4
 
 # Programs
 PICARD=${BASEDIR}/picard/picard.jar
+FASTQC=${BASEDIR}/FastQC/fastqc
 FREEBAYES=${BASEDIR}/freebayes/bin/freebayes
 VEP=${BASEDIR}/vep/vep.pl
 VEP_DATA=${BASEDIR}/vepcache
@@ -59,8 +60,13 @@ do
     j=`expr ${i} + 1`
     
     # Generate IDs
+    FQ1ID=`echo ${OUTP} | sed 's/$/.fq${i}/'`
+    FQ2ID=`echo ${OUTP} | sed 's/$/.fq${j}/'`
     BAMID=`echo ${OUTP} | sed "s/$/.align${i}/"`
 
+    # Fastqc
+    mkdir -p ${OUTP}/prefastqc/ && ${FASTQC} -t ${THREADS} -o ${OUTP}/prefastqc/ ${SAMPLEARR[$i]} && ${FASTQC} -t ${THREADS} -o ${OUTP}/prefastqc/ ${SAMPLEARR[$j]}
+    
     # BWA
     bwa mem -t ${THREADS} -R "@RG\tID:${OUTP}\tSM:${OUTP}" ${GENOME} ${SAMPLEARR[$i]} ${SAMPLEARR[$j]} | samtools view -bT ${GENOME} - > ${OUTP}/${BAMID}.bam
 
