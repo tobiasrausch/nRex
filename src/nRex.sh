@@ -59,8 +59,8 @@ do
     j=`expr ${i} + 1`
     
     # Generate IDs
-    FQ1ID=`echo ${OUTP} | sed 's/$/.fq${i}/'`
-    FQ2ID=`echo ${OUTP} | sed 's/$/.fq${j}/'`
+    FQ1ID=`echo ${OUTP} | sed 's/$/.${i}.fq/'`
+    FQ2ID=`echo ${OUTP} | sed 's/$/.${i}.fq/'`
     BAMID=`echo ${OUTP} | sed "s/$/.align${i}/"`
 
     # Fastqc
