@@ -44,8 +44,7 @@ then
     export TMP=${SCRATCHDIR}
     echo "scratch directory" ${SCRATCHDIR}
 else
-    #export TMP=/tmp/tmp_atac_${DSTR}
-    export TMP=/g/solexa/home/rausch/scripts/cpp/nRex/tmp/tmp_nrex_${DSTR}
+    export TMP=/tmp/tmp_atac_${DSTR}
     mkdir -p ${TMP}
 fi
 JAVAOPT="-Xms4g -Xmx16g -XX:ParallelGCThreads=4 -Djava.io.tmpdir=${TMP}"
@@ -81,7 +80,7 @@ do
     then
 	mv ${OUTP}/${BAMID}.srt.clean.bam ${OUTP}/${BAMID}.srt.clean.rmdup.bam && samtools index ${OUTP}/${BAMID}.srt.clean.rmdup.bam
     else
-	java ${JAVAOPT} -jar ${PICARD} MarkDuplicates I=${OUTP}/${BAMID}.srt.clean.bam O=${OUTP}/${BAMID}.srt.clean.rmdup.bam M=${OUTP}/${OUTP}.markdups.log PG=null MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 ${PICARDOPT} && rm ${OUTP}/${BAMID}.srt.clean.bam* && ${SAM} index ${OUTP}/${BAMID}.srt.clean.rmdup.bam
+	java ${JAVAOPT} -jar ${PICARD} MarkDuplicates I=${OUTP}/${BAMID}.srt.clean.bam O=${OUTP}/${BAMID}.srt.clean.rmdup.bam M=${OUTP}/${OUTP}.markdups.log PG=null MAX_FILE_HANDLES_FOR_READ_ENDS_MAP=1000 ${PICARDOPT} && rm ${OUTP}/${BAMID}.srt.clean.bam* && samtools index ${OUTP}/${BAMID}.srt.clean.rmdup.bam
     fi
     
     # Run stats using unfiltered BAM
