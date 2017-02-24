@@ -20,6 +20,9 @@ module load BCFtools
 module load bwa
 module load BEDTools
 module load R
+module load expat
+module load Boost
+module load HTSlib
 module load alfred
 module load Perl
 module load Python/2.7.12-foss-2016b
