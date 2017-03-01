@@ -6,7 +6,7 @@ then
     echo "nRex: Single-nucleotide variant calling."
     echo "This program comes with ABSOLUTELY NO WARRANTY."
     echo ""
-    echo "nRex (Version: 0.0.2)"
+    echo "nRex (Version: 0.0.3)"
     echo "Contact: Tobias Rausch (rausch@embl.de)"
     echo "**********************************************************************"
     echo ""
@@ -47,7 +47,7 @@ else
     export TMP=/tmp/tmp_atac_${DSTR}
     mkdir -p ${TMP}
 fi
-JAVAOPT="-Xms4g -Xmx16g -XX:ParallelGCThreads=4 -Djava.io.tmpdir=${TMP}"
+JAVAOPT="-Xms4g -Xmx32g -XX:ParallelGCThreads=4 -Djava.io.tmpdir=${TMP}"
 PICARDOPT="MAX_RECORDS_IN_RAM=5000000 TMP_DIR=${TMP} VALIDATION_STRINGENCY=SILENT"
 
 # Align
