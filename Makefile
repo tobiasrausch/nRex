@@ -41,7 +41,7 @@ all:   	$(TARGETS)
 	module load foss HTSlib CMake && cd src/freebayes && make && cd ../../ && touch .freebayes
 
 src/nRex: $(NREXSOURCES)
-	module load Boost HTSlib && $(CXX) $(CXXFLAGS) $@.cpp -o $@ $(LDFLAGS)
+	module load foss Boost HTSlib && $(CXX) $(CXXFLAGS) $@.cpp -o $@ $(LDFLAGS)
 
 clean:
 	cd src/freebayes && make clean
