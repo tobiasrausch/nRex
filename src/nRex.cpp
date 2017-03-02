@@ -194,9 +194,15 @@ int main(int argc, char **argv) {
 	  boost::split(vals, *mgIt, boost::is_any_of(std::string("|")));
 	  std::string transcript("NA");
 	  if (vals[cmap.find("Feature")->second].size()) transcript = vals[cmap.find("Feature")->second];
-
+	  std::string canonical("NA");
+	  if (vals[cmap.find("CANONICAL")->second].size()) canonical = vals[cmap.find("CANONICAL")->second];
+	  
 	  // Is this a selected transcript?
-	  if ((!seltrans.empty()) && (seltrans.find(transcript) == seltrans.end())) continue;
+	  if (seltrans.empty()) {
+	    if (canonical != "YES") continue;
+	  } else {
+	    if (seltrans.find(transcript) == seltrans.end()) continue;
+	  }
 
 	  // Is this a candidate consequence?
 	  if (!candidateVar(vals, cmap, consequence_filter)) continue;
@@ -257,8 +263,6 @@ int main(int argc, char **argv) {
 	    exon = vals[cmap.find("EXON")->second];
 	    std::replace(exon.begin(), exon.end(), '/', ',');
 	  }
-	  std::string canonical("NA");
-	  if (vals[cmap.find("CANONICAL")->second].size()) canonical = vals[cmap.find("CANONICAL")->second];
 	  std::string biotyp("NA");
 	  if (vals[cmap.find("BIOTYPE")->second].size()) biotyp = vals[cmap.find("BIOTYPE")->second];
 	  std::string symb("NA");
