@@ -3,7 +3,7 @@
 #SBATCH -p 1month                   # partition (queue)
 #SBATCH -N 1                        # number of nodes
 #SBATCH -n 4                        # number of cores
-#SBATCH --mem 38000M                # memory pool for all cores
+#SBATCH --mem 48000M                # memory pool for all cores
 #SBATCH -t 16-8:00                  # time (D-HH:MM)
 #SBATCH -o nRex.%N.%j.out           # STDOUT
 #SBATCH -e nRex.%N.%j.err           # STDERR
