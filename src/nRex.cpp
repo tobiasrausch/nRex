@@ -24,6 +24,7 @@ Contact: Tobias Rausch (rausch@embl.de)
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <fstream>
+#include <sstream>
 #include <iostream>
 #include <set>
 #include <vector>
@@ -154,31 +155,26 @@ int main(int argc, char **argv) {
       int32_t ac[2];
       ac[0] = 0;
       ac[1] = 0;
-      std::string rareCarrier = "NA";
+      std::set<std::string> carrier;
       int32_t uncalled = 0;
       int32_t singlecarrier = 0;
-      int32_t carrier = 0;
       for (int i = 0; i < bcf_hdr_nsamples(hdr); ++i) {
 	if ((bcf_gt_allele(gt[i*2]) != -1) && (bcf_gt_allele(gt[i*2 + 1]) != -1)) {
 	  int gt_type = bcf_gt_allele(gt[i*2]) + bcf_gt_allele(gt[i*2 + 1]);
 	  ++ac[bcf_gt_allele(gt[i*2])];
 	  ++ac[bcf_gt_allele(gt[i*2 + 1])];
 	  if (gt_type != 0) {
-	    if (singlecarrier) rareCarrier = "NA";
-	    else {
-	      rareCarrier = hdr->samples[i];
-	      singlecarrier = gt_type;
-	    }
-	    ++carrier;
+	    carrier.insert(hdr->samples[i]);
+	    singlecarrier = gt_type;
 	  }
 	}
       }
-      if (carrier) {
+      if (carrier.size()) {
 	// Compute GT stats
 	float af = (float) ac[1] / (float) (ac[0] + ac[1]);
 	float missingRate = (float) uncalled / (float) bcf_hdr_nsamples(hdr);
 	std::string gtstr = "NA";
-	if (rareCarrier != "NA") {
+	if (carrier.size() == 1) {
 	  if (singlecarrier == 1) gtstr = "het";
 	  else if (singlecarrier == 2) gtstr = "hom";
 	}
@@ -273,14 +269,26 @@ int main(int argc, char **argv) {
 	  //for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt) std::cout << cIt->first << ',' << vals[cIt->second] << std::endl;
 	  
 	  // Below 1% population frequency
+	  //if ((popmax < 0.01) || (clinsig.find("pathogenic") != std::string::npos)) {
 	  if (popmax < 0.01) {
+	    uint32_t maxcarrier = 1;
+	    std::string carrierstr;
+	    if (carrier.empty()) carrierstr = "NA";
+	    else {
+	      std::set<std::string>::iterator iter = carrier.begin();
+	      std::set<std::string>::iterator iterEnd = carrier.begin();
+	      carrierstr = *iter;
+	      if (maxcarrier < carrier.size()) std::advance(iterEnd, maxcarrier);
+	      else iterEnd = carrier.end();
+	      for(++iter; iter != iterEnd; ++iter) carrierstr += "," + *iter;
+	    }
 	    std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t";
-	    std::cout << rec->d.allele[1] << "\t" << exvar << "\t" << rareCarrier << "\t" << gtstr << "\t";
+	    std::cout << rec->d.allele[1] << "\t" << exvar << "\t" << carrierstr << "\t" << gtstr << "\t";
 	    std::cout << symb << "\t" << exon << "\t" << strand << "\t" << biotyp << "\t";
 	    std::cout << cons << "\t" << clinsig << "\t";
 	    std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
 	    std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << mescan << "\t" << canonical << "\t";
-	    std::cout << carrier << "\t" << af << "\t" << missingRate << std::endl;
+	    std::cout << carrier.size() << "\t" << af << "\t" << missingRate << std::endl;
 	  }
 	}
       }
