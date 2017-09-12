@@ -1,15 +1,10 @@
-.picard
-.freebayes
 .perl
 .vep
 .exac
 .egenome
 .maxentscan
-.fastqc
 src/vepcache
-src/picard
 src/nRex
-src/FastQC
 src/perl
 
 # Compiled Object files
