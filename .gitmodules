@@ -1,7 +1,3 @@
-[submodule "src/freebayes"]
-	path = src/freebayes
-	url = https://github.com/ekg/freebayes.git
-	ignore = dirty
 [submodule "src/vep"]
 	path = src/vep
 	url = https://github.com/Ensembl/ensembl-vep.git
