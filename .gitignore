@@ -3,9 +3,12 @@
 .exac
 .egenome
 .maxentscan
+vep
 src/vepcache
 src/nRex
 src/perl
+
+*.*~
 
 # Compiled Object files
 *.slo

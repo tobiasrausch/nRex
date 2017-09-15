@@ -10,7 +10,7 @@ then
     echo "Contact: Tobias Rausch (rausch@embl.de)"
     echo "**********************************************************************"
     echo ""
-    echo "Usage: $0 <wgs|wex|haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>"
+    echo "Usage: $0 <wgs|wes|haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>"
     echo ""
     exit -1
 fi
@@ -18,7 +18,7 @@ fi
 SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 
-export PERL5LIB=${BASEDIR}/perl/lib/perl5/:${BASEDIR}/perl/lib/5.24.0/
+# Add all required binaries
 export PATH=/g/funcgen/bin:${BASEDIR}/perl/bin:${PATH}
 
 # CMD parameters
@@ -28,10 +28,6 @@ OUTP=${3}
 FQ1=${4}
 FQ2=${5}
 THREADS=4
-
-# Programs
-VEP=${BASEDIR}/vep/vep.pl
-VEP_DATA=${BASEDIR}/vepcache
 
 # Redirect tmp to scratch directory if available
 if [ -n "${SCRATCHDIR}" ]
@@ -68,23 +64,13 @@ samtools idxstats ${BAMID}.rmdup.bam > ${OUTP}.idxstats
 samtools flagstat ${BAMID}.rmdup.bam > ${OUTP}.flagstat
 
 # Filter duplicates, unmapped reads, chrM and unplaced contigs
-if [ ${ATYPE} == "haloplex" ]
-then
-    CHRS=`cat ${BASEDIR}/../bed/haloplex.bed | cut -f 1 | sort -k1,1V -k2,2n | uniq | tr '\n' ' '`
-else
-    CHRS=`cat ${BASEDIR}/../bed/exome.bed | cut -f 1 | sort -k1,1V -k2,2n | uniq | tr '\n' ' '`
-fi
+CHRS=`cat ${BASEDIR}/../bed/${ATYPE}.bed | cut -f 1 | sort -k1,1V -k2,2n | uniq | tr '\n' ' '`
 samtools view -F 1024 -b ${BAMID}.rmdup.bam ${CHRS} > ${BAMID}.final.bam
 samtools index ${BAMID}.final.bam
 rm ${BAMID}.rmdup.bam ${BAMID}.rmdup.bam.bai
 
-# Run stats using filtered BAM, TSS enrichment, error rates, etc.
-if [ ${ATYPE} == "haloplex" ]
-then
-    alfred qc -b ${BASEDIR}/../bed/haloplex.bed -r ${GENOME} -o ${OUTP}.bamStats ${BAMID}.final.bam
-else
-    alfred qc -b ${BASEDIR}/../bed/exome.bed -r ${GENOME} -o ${OUTP}.bamStats ${BAMID}.final.bam
-fi
+# Run alfred for BAM statistics
+alfred qc -b ${BASEDIR}/../bed/${ATYPE}.bed -r ${GENOME} -o ${OUTP}.bamStats ${BAMID}.final.bam
 
 # Freebayes
 freebayes --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.15 --fasta-reference ${GENOME} --genotype-qualities ${BAMID}.final.bam -v ${BAMID}.vcf
@@ -92,7 +78,7 @@ bgzip ${BAMID}.vcf
 tabix ${BAMID}.vcf.gz
 
 # Normalize VCF
-vt normalize ${BAMID}.vcf.gz -r ${GENOME} | vt decompose_blocksub - | vt decompose - | vt uniq - | bgzip > ${BAMID}.norm.vcf.gz
+bcftools norm -O z -o ${BAMID}.norm.vcf.gz -f ${GENOME} -m -both ${BAMID}.vcf.gz
 tabix ${BAMID}.norm.vcf.gz
 rm ${BAMID}.vcf.gz ${BAMID}.vcf.gz.tbi
 
@@ -105,15 +91,3 @@ else
 fi
 tabix ${BAMID}.norm.filtered.vcf.gz
 rm ${BAMID}.norm.vcf.gz ${BAMID}.norm.vcf.gz.tbi
-exit;
-
-# VEP
-perl ${VEP} --species homo_sapiens --assembly GRCh37 --offline --no_progress --no_stats --sift b --polyphen b --ccds --hgvs --symbol --numbers --regulatory --canonical --protein --biotype --tsl --appris --gene_phenotype --af --af_1kg --af_esp --af_exac --pubmed --variant_class --no_escape --vcf --minimal --dir ${VEP_DATA} --fasta ${VEP_DATA}/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa --input_file ${OUTP}/${BAMID}.norm.filtered.vcf.gz --output_file ${OUTP}/${BAMID}.vep.vcf --plugin ExAC,${VEP_DATA}/ExAC.r0.3.1.sites.vep.vcf.gz --plugin Blosum62 --plugin CSN --plugin Downstream --plugin GO --plugin LoFtool,${BASEDIR}/../bed/LoFtool_scores.txt --plugin TSSDistance --plugin MaxEntScan,${VEP_DATA}/Plugins/maxentscan/
-bgzip ${OUTP}/${BAMID}.vep.vcf
-tabix ${OUTP}/${BAMID}.vep.vcf.gz
-
-# Convert to BCF
-bcftools view -O b -o ${OUTP}/${BAMID}.vep.bcf ${OUTP}/${BAMID}.vep.vcf.gz
-bcftools index ${OUTP}/${BAMID}.vep.bcf
-rm ${OUTP}/${BAMID}.vep.vcf.gz ${OUTP}/${BAMID}.vep.vcf.gz.tbi ${OUTP}/${BAMID}.norm.filtered.vcf.gz ${OUTP}/${BAMID}.norm.filtered.vcf.gz.tbi
-
