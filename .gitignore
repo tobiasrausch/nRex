@@ -1,12 +1,11 @@
-.perl
 .vep
 .exac
 .egenome
 .maxentscan
-vep
+vep/sites.bcf
+vep/sites.bcf.csi
 src/vepcache
 src/nRex
-src/perl
 
 *.*~
 
