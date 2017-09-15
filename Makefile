@@ -5,7 +5,7 @@ NREXSOURCES = $(wildcard src/*.cpp)
 PBASE=$(shell pwd)
 
 # Targets
-TARGETS = .vep .gnomADg .maxentscan .egenome src/nRex
+TARGETS = .vep .gnomADg .maxentscan .egenome .loftool src/nRex
 
 all:   	$(TARGETS)
 
@@ -20,6 +20,9 @@ all:   	$(TARGETS)
 
 .egenome: .vep
 	module load SAMtools && cd src/vepcache/ && wget --no-check-certificate 'ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz' && gunzip Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz && samtools faidx Homo_sapiens.GRCh37.75.dna.primary_assembly.fa && cd ../../ && touch .egenome
+
+.loftool: .vep
+	mkdir -p src/vepcache/Plugins/ && cd src/vepcache/Plugins/ && wget 'https://raw.githubusercontent.com/Ensembl/VEP_plugins/release/90/LoFtool_scores.txt' && cd ../../../ && touch .loftool
 
 src/nRex: $(NREXSOURCES)
 	${PBASE}/src/build_nRex

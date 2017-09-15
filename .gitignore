@@ -2,6 +2,7 @@
 .gnomADg
 .egenome
 .maxentscan
+.loftool
 vep/sites.bcf
 vep/sites.bcf.csi
 src/vepcache
