@@ -1,12 +1,6 @@
 SHELL := /bin/bash
 
-CXX=g++
-CXXFLAGS += -isystem ${EBROOTHTSLIB} -pedantic -W -Wall -Wno-unknown-pragmas -fno-strict-aliasing
-LDFLAGS += -L${EBROOTHTSLIB}
-LDFLAGS += -lhts -lz -Wl,-rpath,${EBROOTHTSLIB}
-CXXFLAGS += -O3 -fno-tree-vectorize -DNDEBUG -D__STDC_LIMIT_MACROS
-
-# External sources
+# Sources
 NREXSOURCES = $(wildcard src/*.cpp)
 PBASE=$(shell pwd)
 
@@ -28,7 +22,7 @@ all:   	$(TARGETS)
 	module load SAMtools && cd src/vepcache/ && wget --no-check-certificate 'ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz' && gunzip Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz && samtools faidx Homo_sapiens.GRCh37.75.dna.primary_assembly.fa && cd ../../ && touch .egenome
 
 src/nRex: $(NREXSOURCES)
-	module load foss Boost HTSlib && $(CXX) $(CXXFLAGS) $@.cpp -o $@ $(LDFLAGS)
+	${PBASE}/src/build_nRex
 
 clean:
 	rm -rf $(TARGETS) src/vepcache/

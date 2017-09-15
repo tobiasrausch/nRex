@@ -1,0 +1,11 @@
+#! /usr/bin/env bash
+
+set -e
+
+module load foss Boost HTSlib BCFtools SAMtools zlib bzip2 ncurses &> /dev/null
+
+CXX="g++"
+CXXFLAGS="-isystem ${EBROOTHTSLIB} -pedantic -W -Wall -Wno-unknown-pragmas -fno-strict-aliasing -O3 -fno-tree-vectorize -DNDEBUG -D__STDC_LIMIT_MACROS"
+LDFLAGS="-L${EBROOTHTSLIB} -lhts -lz -Wl,-rpath,${EBROOTHTSLIB}"
+
+${CXX} ${CXXFLAGS} src/nRex.cpp -o src/nRex ${LDFLAGS}
