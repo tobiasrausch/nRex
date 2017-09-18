@@ -5,12 +5,12 @@ NREXSOURCES = $(wildcard src/*.cpp)
 PBASE=$(shell pwd)
 
 # Targets
-TARGETS = .vep .gnomADg .maxentscan .egenome .loftool src/nRex
+TARGETS = .vep .gnomADg .maxentscan .egenome .loftool .exacpli .mpc src/nRex
 
 all:   	$(TARGETS)
 
 .vep:
-	module load Perl BioPerl DBD-mysql HTSlib && mkdir -p src/vepcache/ && cd src/vep/ && perl INSTALL.pl -a acp -s homo_sapiens -y GRCh37 -v 90 -c ${PBASE}/src/vepcache -g Blosum62,CSN,Downstream,ExAC,GO,LoFtool,TSSDistance,MaxEntScan,RankFilter -t --NO_HTSLIB --NO_BIOPERL && cd ../../ && touch .vep
+	module load Perl BioPerl DBD-mysql HTSlib && mkdir -p src/vepcache/ && cd src/vep/ && perl INSTALL.pl -a acp -s homo_sapiens -y GRCh37 -v 90 -c ${PBASE}/src/vepcache -g Blosum62,CSN,Downstream,ExAC,GO,LoFtool,TSSDistance,MaxEntScan,ExACpLI,MPC -t --NO_HTSLIB --NO_BIOPERL && cd ../../ && touch .vep
 
 .maxentscan: .vep
 	mkdir -p src/vepcache/Plugins/ && cd src/vepcache/Plugins/ && wget 'http://genes.mit.edu/burgelab/maxent/download/fordownload.tar.gz' && tar -xzf fordownload.tar.gz && rm fordownload.tar.gz && mv fordownload/ maxentscan/ && cd ../../../ && touch .maxentscan
@@ -23,6 +23,12 @@ all:   	$(TARGETS)
 
 .loftool: .vep
 	mkdir -p src/vepcache/Plugins/ && cd src/vepcache/Plugins/ && wget 'https://raw.githubusercontent.com/Ensembl/VEP_plugins/release/90/LoFtool_scores.txt' && cd ../../../ && touch .loftool
+
+.exacpli: .vep
+	mkdir -p src/vepcache/Plugins/ && cd src/vepcache/Plugins/ && wget 'https://raw.githubusercontent.com/Ensembl/VEP_plugins/release/90/ExACpLI_values.txt' && cd ../../../ && touch .exacpli
+
+.mpc: .vep
+	mkdir -p src/vepcache/Plugins/ && cd src/vepcache/Plugins/ && wget 'ftp://ftp.broadinstitute.org/pub/ExAC_release/release1/regional_missense_constraint/fordist_constraint_official_mpc_values_v2.txt.gz' && cd ../../../ && touch .mpc
 
 src/nRex: $(NREXSOURCES)
 	${PBASE}/src/build_nRex

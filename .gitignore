@@ -3,6 +3,8 @@
 .egenome
 .maxentscan
 .loftool
+.exacpli
+.mpc
 vep/sites.bcf
 vep/sites.bcf.csi
 src/vepcache
