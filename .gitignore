@@ -1,4 +1,5 @@
 .vep
+.biodbhts
 .gnomADg
 .egenome
 .maxentscan
@@ -8,6 +9,7 @@
 vep/sites.bcf
 vep/sites.bcf.csi
 src/vepcache
+src/BioDbBuild/
 src/nRex
 
 *.*~

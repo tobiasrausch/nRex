@@ -19,7 +19,7 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 
 # Add all required binaries
-export PATH=/g/funcgen/bin:${BASEDIR}/perl/bin:${PATH}
+export PATH=/g/funcgen/bin:${PATH}
 
 # CMD parameters
 ATYPE=${1}
