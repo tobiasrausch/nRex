@@ -32,7 +32,7 @@ VEP=${BASEDIR}/vep/vep
 VEP_DATA=${BASEDIR}/vepcache
 
 # VEP
-${VEP} --fork ${FORK} --species homo_sapiens --assembly GRCh37 --offline --everything --stats_file ${ID}.vep.html --format vcf --cache --dir ${VEP_DATA} --fasta ${VEP_DATA}/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa --input_file ${VCF} --output_file ${ID}.vep.vcf --no_escape --custom ${VEP_DATA}/gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz,gnomADg,vcf,exact,0,AF_AFR,AF_AMR,AF_ASJ,AF_EAS,AF_FIN,AF_NFE,AF_OTH --plugin Blosum62 --plugin CSN --plugin Downstream --plugin GO --plugin LoFtool,${VEP_DATA}/Plugins/LoFtool_scores.txt --plugin TSSDistance --plugin MaxEntScan,${VEP_DATA}/Plugins/maxentscan/
+${VEP} --fork ${FORK} --species homo_sapiens --assembly GRCh37 --offline --everything --stats_file ${ID}.vep.html --format vcf --cache --dir ${VEP_DATA} --fasta ${VEP_DATA}/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa --input_file ${VCF} --vcf --output_file ${ID}.vep.vcf --no_escape --custom ${VEP_DATA}/gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz,gnomADg,vcf,exact,0,AF_AFR,AF_AMR,AF_ASJ,AF_EAS,AF_FIN,AF_NFE,AF_OTH --plugin Blosum62 --plugin CSN --plugin Downstream --plugin GO --plugin LoFtool,${VEP_DATA}/Plugins/LoFtool_scores.txt --plugin TSSDistance --plugin MaxEntScan,${VEP_DATA}/Plugins/maxentscan/ --plugin MPC,${VEP_DATA}/Plugins/fordist_constraint_official_mpc_values_v2.txt.gz --plugin ExACpLI,${VEP_DATA}/Plugins/ExACpLI_values.txt
 bgzip ${ID}.vep.vcf
 tabix ${ID}.vep.vcf.gz
 

@@ -23,6 +23,13 @@ Contact: Tobias Rausch (rausch@embl.de)
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/program_options/cmdline.hpp>
+#include <boost/program_options/options_description.hpp>
+#include <boost/program_options/parsers.hpp>
+#include <boost/program_options/variables_map.hpp>
+#include <boost/filesystem/path.hpp>
+#include <boost/filesystem/fstream.hpp>
+#include <boost/filesystem.hpp>
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -33,6 +40,16 @@ Contact: Tobias Rausch (rausch@embl.de)
 #include "htslib/vcf.h"
 
 
+// Config arguments
+struct Config {
+  bool selTranscripts;
+  uint32_t minCarrier;
+  boost::filesystem::path vcf;
+  boost::filesystem::path transcripts;
+  boost::filesystem::path outfile;
+};
+
+  
 template<typename TMap>
 inline bool
 getCSQ(std::string const& header, TMap& cmap) {
@@ -63,7 +80,10 @@ getCSQ(std::string const& header, TMap& cmap) {
 	      TStrParts::const_iterator itC = columns.begin();
 	      TStrParts::const_iterator itCEnd = columns.end();
 	      int32_t i = 0;
-	      for(;itC != itCEnd; ++itC, ++i) cmap.insert(std::make_pair(*itC, i));
+	      for(;itC != itCEnd; ++itC, ++i) {
+		cmap.insert(std::make_pair(*itC, i));
+		//std::cerr << i << ": " << *itC << std::endl;
+	      }
 	    }
 	  }
 	}
@@ -91,19 +111,53 @@ candidateVar(TStrParts const& vals, TMap const& cmap, TConsequence const& conseq
 
 
 int main(int argc, char **argv) {
-  if (argc < 2) {
-    std::cerr << "Usage: " << argv[0] << " <snps.vep.bcf> [<selected.transcripts>]" << std::endl;
-    return 1; 
-  }
+  Config c;
+  boost::program_options::options_description generic("Generic options");
+  generic.add_options()
+    ("help,?", "show help message")
+    ("min-carrier,m", boost::program_options::value<uint32_t>(&c.minCarrier)->default_value(1), "min. carrier")
+    ("transcripts,t", boost::program_options::value<boost::filesystem::path>(&c.transcripts)->default_value("transcripts.lst"), "list of selected transcripts")
+    ("outfile,o", boost::program_options::value<boost::filesystem::path>(&c.outfile)->default_value("variants.tsv"), "output file")
+    ;
 
+  // Define hidden options
+  boost::program_options::options_description hidden("Hidden options");
+  hidden.add_options()
+    ("input-file", boost::program_options::value<boost::filesystem::path>(&c.vcf), "input VCF file")
+    ;
+
+  boost::program_options::positional_options_description pos_args;
+  pos_args.add("input-file", -1);
+
+  // Set the visibility
+  boost::program_options::options_description cmdline_options;
+  cmdline_options.add(generic).add(hidden);
+  boost::program_options::options_description visible_options;
+  visible_options.add(generic);
+  boost::program_options::variables_map vm;
+  boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(cmdline_options).positional(pos_args).run(), vm);
+  boost::program_options::notify(vm);
+
+  // Check command line arguments
+  if ((vm.count("help")) || (!vm.count("input-file"))) {
+    std::cout << std::endl;
+    std::cout << "Usage: " << argv[0] << " [OPTIONS] <variants.vcf.gz>" << std::endl;
+    std::cout << visible_options << "\n";
+    return 0;
+  }
+  
   // Load selected transcripts
   std::set<std::string> seltrans;
-  if (argc == 3) {
-    std::string line;
-    std::ifstream ifile(argv[2]);
-    if (ifile.is_open()) {
-      while (getline(ifile, line)) seltrans.insert(line);
-      ifile.close();
+  c.selTranscripts = false;
+  if (vm.count("transcripts")) {
+    if (!(boost::filesystem::exists(c.transcripts) && boost::filesystem::is_regular_file(c.transcripts) && boost::filesystem::file_size(c.transcripts))) {
+      c.selTranscripts = true;
+      std::string line;
+      std::ifstream ifile(c.transcripts.string().c_str());
+      if (ifile.is_open()) {
+	while (getline(ifile, line)) seltrans.insert(line);
+	ifile.close();
+      }
     }
   }
 
@@ -118,9 +172,9 @@ int main(int argc, char **argv) {
   }
   
   // Load bcf file
-  htsFile* ifile = bcf_open(argv[1], "r");
+  htsFile* ifile = bcf_open(c.vcf.string().c_str(), "r");
   if (ifile == NULL) {
-    std::cerr << "Fail to load " << argv[1] << std::endl;
+    std::cerr << "Fail to load " << c.vcf.string().c_str() << std::endl;
     return 1;
   }
   bcf_hdr_t* hdr = bcf_hdr_read(ifile);
@@ -169,7 +223,7 @@ int main(int argc, char **argv) {
 	  }
 	}
       }
-      if (carrier.size()) {
+      if (carrier.size() >= c.minCarrier) {
 	// Compute GT stats
 	float af = (float) ac[1] / (float) (ac[0] + ac[1]);
 	float missingRate = (float) uncalled / (float) bcf_hdr_nsamples(hdr);
@@ -183,29 +237,37 @@ int main(int argc, char **argv) {
 	typedef std::vector<std::string> TStrParts;
 	std::string vep;
 	if (bcf_get_info_string(hdr, rec, "CSQ", &csq, &ncsq) > 0) vep = std::string(csq);
+
+	// Iterate all transcripts
 	TStrParts mgenes;
 	boost::split(mgenes, vep, boost::is_any_of(std::string(",")));
 	for(TStrParts::const_iterator mgIt = mgenes.begin(); mgIt != mgenes.end(); ++mgIt) {
 	  TStrParts vals;
 	  boost::split(vals, *mgIt, boost::is_any_of(std::string("|")));
+
+	  // Find transcript
 	  std::string transcript("NA");
 	  if (vals[cmap.find("Feature")->second].size()) transcript = vals[cmap.find("Feature")->second];
 	  std::string canonical("NA");
 	  if (vals[cmap.find("CANONICAL")->second].size()) canonical = vals[cmap.find("CANONICAL")->second];
 	  
 	  // Is this a selected transcript?
-	  if (seltrans.empty()) {
-	    if (canonical != "YES") continue;
-	  } else {
+	  if (c.selTranscripts) {
 	    if (seltrans.find(transcript) == seltrans.end()) continue;
+	  } else {
+	    if (canonical != "YES") continue;
 	  }
 
+	  // Debug
+	  for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt)
+	    if (cIt->second < (int32_t) vals.size()) std::cerr << cIt->first << ',' << vals[cIt->second] << std::endl;
+	  std::cerr << std::endl;
+	  exit(-1);
+
+	  
 	  // Is this a candidate consequence?
 	  if (!candidateVar(vals, cmap, consequence_filter)) continue;
 	  
-	  // Debug
-	  //for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt)
-	  //if (cIt->second < (int32_t) vals.size()) std::cout << cIt->first << ',' << vals[cIt->second] << std::endl;
 	  float popmax = 0;
 	  //std::string tmp[] = {"AFR_MAF", "AMR_MAF", "EAS_MAF", "EUR_MAF", "SAS_MAF", "AA_MAF", "EA_MAF", "ExAC_AF_AFR", "ExAC_AF_AMR", "ExAC_AF_EAS", "ExAC_AF_NFE", "ExAC_AF_SAS"};
 	  std::string tmp[] = {"AFR_AF", "AMR_AF", "EAS_AF", "EUR_AF", "SAS_AF", "AA_AF", "EA_AF", "ExAC_AFR_AF", "ExAC_AMR_AF", "ExAC_EAS_AF", "ExAC_NFE_AF", "ExAC_SAS_AF"};

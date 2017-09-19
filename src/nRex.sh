@@ -63,14 +63,14 @@ fi
 samtools idxstats ${BAMID}.rmdup.bam > ${OUTP}.idxstats
 samtools flagstat ${BAMID}.rmdup.bam > ${OUTP}.flagstat
 
+# Run alfred for BAM statistics
+alfred qc -b ${BASEDIR}/../bed/${ATYPE}.bed -r ${GENOME} -o ${OUTP}.bamStats ${BAMID}.rmdup.bam
+
 # Filter duplicates, unmapped reads, chrM and unplaced contigs
 CHRS=`cat ${BASEDIR}/../bed/${ATYPE}.bed | cut -f 1 | sort -k1,1V -k2,2n | uniq | tr '\n' ' '`
 samtools view -F 1024 -b ${BAMID}.rmdup.bam ${CHRS} > ${BAMID}.final.bam
 samtools index ${BAMID}.final.bam
 rm ${BAMID}.rmdup.bam ${BAMID}.rmdup.bam.bai
-
-# Run alfred for BAM statistics
-alfred qc -b ${BASEDIR}/../bed/${ATYPE}.bed -r ${GENOME} -o ${OUTP}.bamStats ${BAMID}.final.bam
 
 # Freebayes
 freebayes --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.15 --fasta-reference ${GENOME} --genotype-qualities ${BAMID}.final.bam -v ${BAMID}.vcf
