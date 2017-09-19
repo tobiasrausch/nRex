@@ -55,7 +55,7 @@ then
     mv ${BAMID}.srt.bam ${BAMID}.rmdup.bam
     mv ${BAMID}.srt.bam.bai ${BAMID}.rmdup.bam.bai
 else
-    bammarkduplicates markthreads=${THREADS} I=${BAMID}.srt.bam O=${BAMID}.rmdup.bam M=${BAMID}.metrics.tsv index=1 rmdup=0
+    bammarkduplicates markthreads=${THREADS} tmpfile=${OUTP}_`date +'%H%M%S'` I=${BAMID}.srt.bam O=${BAMID}.rmdup.bam M=${BAMID}.metrics.tsv index=1 rmdup=0
     rm ${BAMID}.srt.bam ${BAMID}.srt.bam.bai
 fi
     
