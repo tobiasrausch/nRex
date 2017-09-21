@@ -7,7 +7,7 @@
 #SBATCH -t 23:55:00                 # time (D-HH:MM)
 #SBATCH -o nRex.%N.%j.out           # STDOUT
 #SBATCH -e nRex.%N.%j.err           # STDERR
-#SBATCH --mail-type=END,FAIL        # notifications for job done & fail
+#SBATCH --mail-type=FAIL            # notifications for job done & fail
 #SBATCH --mail-user=rausch@embl.de  # send-to address
 
 # Fetch ATAC-Seq script

@@ -19,7 +19,7 @@ all:   	$(TARGETS)
 	mkdir -p src/vepcache/Plugins/ && cd src/vepcache/Plugins/ && wget 'http://genes.mit.edu/burgelab/maxent/download/fordownload.tar.gz' && tar -xzf fordownload.tar.gz && rm fordownload.tar.gz && mv fordownload/ maxentscan/ && cd ../../../ && touch .maxentscan
 
 .gnomADg:
-	cd src/vepcache/ && wget --no-check-certificate 'ftp://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh37/variation_genotype/gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz' && wget --no-check-certificate 'ftp://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh37/variation_genotype/gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz.tbi' && cd ../../ && touch .gnomADg
+	module load HTSlib BCFtools && cd src/vepcache/ && wget --no-check-certificate 'ftp://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh37/variation_genotype/gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz' && wget --no-check-certificate 'ftp://ftp.ensembl.org/pub/data_files/homo_sapiens/GRCh37/variation_genotype/gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz.tbi' && bcftools norm -O z -o gnomad.tmp.vcf.gz -f Homo_sapiens.GRCh37.75.dna.primary_assembly.fa -m -both gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz && tabix gnomad.tmp.vcf.gz && mv gnomad.tmp.vcf.gz gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz && mv gnomad.tmp.vcf.gz.tbi gnomad.genomes.r2.0.1.sites.noVEP.vcf.gz.tbi && cd ../../ && touch .gnomADg
 
 .egenome:
 	module load SAMtools && cd src/vepcache/ && wget --no-check-certificate 'ftp://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz' && gunzip Homo_sapiens.GRCh37.75.dna.primary_assembly.fa.gz && samtools faidx Homo_sapiens.GRCh37.75.dna.primary_assembly.fa && cd ../../ && touch .egenome
