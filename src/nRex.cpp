@@ -43,7 +43,9 @@ Contact: Tobias Rausch (rausch@embl.de)
 // Config arguments
 struct Config {
   bool selTranscripts;
-  uint32_t minCarrier;
+  bool clinvarPathogenic;
+  uint32_t maxCarrier;
+  std::string severity;
   boost::filesystem::path vcf;
   boost::filesystem::path transcripts;
   boost::filesystem::path outfile;
@@ -94,6 +96,37 @@ getCSQ(std::string const& header, TMap& cmap) {
 }
 
 
+template<typename TStrParts, typename TMap>
+float
+popMax(TStrParts const& vals, TMap const& cmap) {
+  float popmax = 0;
+  std::string tmp[] = {"gnomAD_AFR_AF", "gnomAD_AMR_AF", "gnomAD_ASJ_AF", "gnomAD_EAS_AF", "gnomAD_NFE_AF", "gnomAD_SAS_AF", "gnomADg_AF_AFR", "gnomADg_AF_AMR", "gnomADg_AF_ASJ", "gnomADg_AF_EAS", "gnomADg_AF_NFE", "gnomADg_AF_OTH"};
+  typedef std::set<std::string> TAfSet;
+  TAfSet afs(tmp, tmp + sizeof(tmp) / sizeof(tmp[0]));
+  for(typename TAfSet::const_iterator afIt = afs.begin(); afIt != afs.end(); ++afIt) {
+    if (cmap.find(*afIt) == cmap.end()) std::cerr << *afIt << " does not exist!" << std::endl;
+    std::string afstr(vals[cmap.find(*afIt)->second]);
+    TStrParts afparts;
+    boost::split(afparts, afstr, boost::is_any_of(std::string("&")));
+    for(typename TStrParts::const_iterator afP = afparts.begin(); afP != afparts.end(); ++afP) {
+      size_t sp = afP->find(":");
+      std::string freqstr;
+      if (sp != std::string::npos) {
+	TStrParts freq;
+	boost::split(freq, *afP, boost::is_any_of(std::string(":")));
+	if (freq.size()==2) freqstr = freq[1];
+      } else freqstr = *afP;
+      float afval = 0;
+      if (freqstr.size()) {
+	afval = boost::lexical_cast<float>(freqstr);
+	if (afval > popmax) popmax = afval;
+	//std::cerr << *afIt << "\t" << afval << "\t" << afstr << "\t" << popmax << std::endl;
+      }
+    }
+  }
+  return popmax;
+}
+
 template<typename TStrParts, typename TMap, typename TConsequence>
 bool
 candidateVar(TStrParts const& vals, TMap const& cmap, TConsequence const& consequence_filter) {
@@ -115,8 +148,10 @@ int main(int argc, char **argv) {
   boost::program_options::options_description generic("Generic options");
   generic.add_options()
     ("help,?", "show help message")
-    ("min-carrier,m", boost::program_options::value<uint32_t>(&c.minCarrier)->default_value(1), "min. carrier")
-    ("transcripts,t", boost::program_options::value<boost::filesystem::path>(&c.transcripts)->default_value("transcripts.lst"), "list of selected transcripts")
+    ("max-carrier,n", boost::program_options::value<uint32_t>(&c.maxCarrier)->default_value(10), "max. carrier sample to list in the output")
+    ("severity,s", boost::program_options::value<std::string>(&c.severity)->default_value("missense"), "max. severity to report [ptv, missense, splice, all]")
+    ("transcripts,t", boost::program_options::value<boost::filesystem::path>(&c.transcripts), "list of selected transcripts (if not provided canonical transcripts are used)")
+    ("pathogenic,p", "Always include ClinVar pathogenic variants")
     ("outfile,o", boost::program_options::value<boost::filesystem::path>(&c.outfile)->default_value("variants.tsv"), "output file")
     ;
 
@@ -145,6 +180,10 @@ int main(int argc, char **argv) {
     std::cout << visible_options << "\n";
     return 0;
   }
+
+  // ClinVar Pathogenic
+  if (vm.count("pathogenic")) c.clinvarPathogenic = true;
+  else c.clinvarPathogenic = false;
   
   // Load selected transcripts
   std::set<std::string> seltrans;
@@ -162,8 +201,11 @@ int main(int argc, char **argv) {
   }
 
   // Limit output up to this severity (maxSOterm)
-  std::string maxSOterm = "splice_region_variant";
-  std::string consSO[] = {"transcript_ablation","splice_acceptor_variant","splice_donor_variant","stop_gained","frameshift_variant","stop_lost","start_lost","transcript_amplification","inframe_insertion","inframe_deletion","missense_variant","protein_altering_variant","splice_region_variant","incomplete_terminal_codon_variant","stop_retained_variant","synonymous_variant","coding_sequence_variant","mature_miRNA_variant","5_prime_UTR_variant","3_prime_UTR_variant","non_coding_transcript_exon_variant","intron_variant","NMD_transcript_variant","non_coding_transcript_variant","upstream_gene_variant","downstream_gene_variant","TFBS_ablation","TFBS_amplification","TF_binding_site_variant","regulatory_region_ablation","regulatory_region_amplification","feature_elongation","regulatory_region_variant","feature_truncation","intergenic_variant"};
+  std::string maxSOterm = "intergenic_variant";
+  if (c.severity == "ptv") maxSOterm = "transcript_amplification";
+  else if (c.severity == "missense") maxSOterm = "missense_variant";
+  else if (c.severity == "splice") maxSOterm = "splice_region_variant";
+  std::string consSO[] = {"transcript_ablation","splice_acceptor_variant","splice_donor_variant","stop_gained","frameshift_variant","stop_lost","start_lost","transcript_amplification","inframe_insertion","inframe_deletion","missense_variant","protein_altering_variant","splice_region_variant","incomplete_terminal_codon_variant","stop_retained_variant","synonymous_variant","coding_sequence_variant","mature_miRNA_variant","5_prime_UTR_variant","3_prime_UTR_variant","non_coding_transcript_exon_variant","intron_variant","NMD_transcript_variant","non_coding_transcript_variant","upstream_gene_variant","downstream_gene_variant","TFBS_ablation","TFBS_amplification","TF_binding_site_variant","regulatory_region_ablation","regulatory_region_amplification","feature_elongation","regulatory_region_variant","feature_truncation","intergenic_variant"};  
   std::vector<std::string> consequence_all(consSO, consSO + sizeof(consSO) / sizeof(consSO[0]));
   std::set<std::string> consequence_filter;
   for(uint32_t i = 0; i < consequence_all.size(); ++i) {
@@ -202,100 +244,82 @@ int main(int argc, char **argv) {
   // Parse VCF records
   bcf1_t* rec = bcf_init();
   while (bcf_read(ifile, hdr, rec) == 0) {
-    bcf_unpack(rec, BCF_UN_ALL);
+    bcf_unpack(rec, BCF_UN_INFO);
+
     // Only bi-allelic
     if (rec->n_allele == 2) {
-      bcf_get_format_int32(hdr, rec, "GT", &gt, &ngt);
-      int32_t ac[2];
-      ac[0] = 0;
-      ac[1] = 0;
-      std::set<std::string> carrier;
-      int32_t uncalled = 0;
-      int32_t singlecarrier = 0;
-      for (int i = 0; i < bcf_hdr_nsamples(hdr); ++i) {
-	if ((bcf_gt_allele(gt[i*2]) != -1) && (bcf_gt_allele(gt[i*2 + 1]) != -1)) {
-	  int gt_type = bcf_gt_allele(gt[i*2]) + bcf_gt_allele(gt[i*2 + 1]);
-	  ++ac[bcf_gt_allele(gt[i*2])];
-	  ++ac[bcf_gt_allele(gt[i*2 + 1])];
-	  if (gt_type != 0) {
-	    carrier.insert(hdr->samples[i]);
-	    singlecarrier = gt_type;
-	  }
-	}
-      }
-      if (carrier.size() >= c.minCarrier) {
-	// Compute GT stats
-	float af = (float) ac[1] / (float) (ac[0] + ac[1]);
-	float missingRate = (float) uncalled / (float) bcf_hdr_nsamples(hdr);
-	std::string gtstr = "NA";
-	if (carrier.size() == 1) {
-	  if (singlecarrier == 1) gtstr = "het";
-	  else if (singlecarrier == 2) gtstr = "hom";
+      // Parse VEP
+      typedef std::vector<std::string> TStrParts;
+      std::string vep;
+      if (bcf_get_info_string(hdr, rec, "CSQ", &csq, &ncsq) > 0) vep = std::string(csq);
+
+      // Iterate all transcripts
+      TStrParts mgenes;
+      boost::split(mgenes, vep, boost::is_any_of(std::string(",")));
+      for(TStrParts::const_iterator mgIt = mgenes.begin(); mgIt != mgenes.end(); ++mgIt) {
+	TStrParts vals;
+	boost::split(vals, *mgIt, boost::is_any_of(std::string("|")));
+
+	// Find transcript
+	std::string transcript("NA");
+	if (vals[cmap.find("Feature")->second].size()) transcript = vals[cmap.find("Feature")->second];
+	std::string canonical("NA");
+	if (vals[cmap.find("CANONICAL")->second].size()) canonical = vals[cmap.find("CANONICAL")->second];
+	  
+	// Is this a selected transcript?
+	if (c.selTranscripts) {
+	  if (seltrans.find(transcript) == seltrans.end()) continue;
+	} else {
+	  if (canonical != "YES") continue;
 	}
 
-	// Parse VEP
-	typedef std::vector<std::string> TStrParts;
-	std::string vep;
-	if (bcf_get_info_string(hdr, rec, "CSQ", &csq, &ncsq) > 0) vep = std::string(csq);
+	// Is this a candidate consequence?
+	std::string clinsig("unknown");
+	if (vals[cmap.find("CLIN_SIG")->second].size()) clinsig = vals[cmap.find("CLIN_SIG")->second];
+	bool pathogenic = false;
+	if ((c.clinvarPathogenic) && (clinsig.find("pathogenic") != std::string::npos)) pathogenic = true;
+	if ((!candidateVar(vals, cmap, consequence_filter)) && (!pathogenic)) continue;
 
-	// Iterate all transcripts
-	TStrParts mgenes;
-	boost::split(mgenes, vep, boost::is_any_of(std::string(",")));
-	for(TStrParts::const_iterator mgIt = mgenes.begin(); mgIt != mgenes.end(); ++mgIt) {
-	  TStrParts vals;
-	  boost::split(vals, *mgIt, boost::is_any_of(std::string("|")));
-
-	  // Find transcript
-	  std::string transcript("NA");
-	  if (vals[cmap.find("Feature")->second].size()) transcript = vals[cmap.find("Feature")->second];
-	  std::string canonical("NA");
-	  if (vals[cmap.find("CANONICAL")->second].size()) canonical = vals[cmap.find("CANONICAL")->second];
+	// Check pop max
+	float popmax = popMax(vals, cmap);
+	if ((popmax >= 0.01) && (!pathogenic)) continue;
 	  
-	  // Is this a selected transcript?
-	  if (c.selTranscripts) {
-	    if (seltrans.find(transcript) == seltrans.end()) continue;
-	  } else {
-	    if (canonical != "YES") continue;
+	// Debug
+	//for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt)
+	//if (cIt->second < (int32_t) vals.size()) std::cerr << cIt->first << ',' << vals[cIt->second] << std::endl;
+	//std::cerr << std::endl;
+
+	// Get allele frequency
+	bcf_unpack(rec, BCF_UN_ALL);
+	bcf_get_format_int32(hdr, rec, "GT", &gt, &ngt);
+	int32_t ac[2];
+	ac[0] = 0;
+	ac[1] = 0;
+	std::set<std::string> carrier;
+	int32_t uncalled = 0;
+	int32_t singlecarrier = 0;
+	for (int i = 0; i < bcf_hdr_nsamples(hdr); ++i) {
+	  if ((bcf_gt_allele(gt[i*2]) != -1) && (bcf_gt_allele(gt[i*2 + 1]) != -1)) {
+	    int gt_type = bcf_gt_allele(gt[i*2]) + bcf_gt_allele(gt[i*2 + 1]);
+	    ++ac[bcf_gt_allele(gt[i*2])];
+	    ++ac[bcf_gt_allele(gt[i*2 + 1])];
+	    if (gt_type != 0) {
+	      carrier.insert(hdr->samples[i]);
+	      singlecarrier = gt_type;
 	  }
-
-	  // Debug
-	  for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt)
-	    if (cIt->second < (int32_t) vals.size()) std::cerr << cIt->first << ',' << vals[cIt->second] << std::endl;
-	  std::cerr << std::endl;
-	  exit(-1);
-
-	  
-	  // Is this a candidate consequence?
-	  if (!candidateVar(vals, cmap, consequence_filter)) continue;
-	  
-	  float popmax = 0;
-	  //std::string tmp[] = {"AFR_MAF", "AMR_MAF", "EAS_MAF", "EUR_MAF", "SAS_MAF", "AA_MAF", "EA_MAF", "ExAC_AF_AFR", "ExAC_AF_AMR", "ExAC_AF_EAS", "ExAC_AF_NFE", "ExAC_AF_SAS"};
-	  std::string tmp[] = {"AFR_AF", "AMR_AF", "EAS_AF", "EUR_AF", "SAS_AF", "AA_AF", "EA_AF", "ExAC_AFR_AF", "ExAC_AMR_AF", "ExAC_EAS_AF", "ExAC_NFE_AF", "ExAC_SAS_AF"};
-	  typedef std::set<std::string> TAfSet;
-	  TAfSet afs(tmp, tmp + sizeof(tmp) / sizeof(tmp[0]));
-	  for(typename TAfSet::const_iterator afIt = afs.begin(); afIt != afs.end(); ++afIt) {
-	    if (cmap.find(*afIt) == cmap.end()) std::cerr << *afIt << " does not exist!" << std::endl;
-	    std::string afstr(vals[cmap.find(*afIt)->second]);
-	    TStrParts afparts;
-	    boost::split(afparts, afstr, boost::is_any_of(std::string("&")));
-	    for(typename TStrParts::const_iterator afP = afparts.begin(); afP != afparts.end(); ++afP) {
-	      size_t sp = afP->find(":");
-	      std::string freqstr;
-	      if (sp != std::string::npos) {
-		TStrParts freq;
-		boost::split(freq, *afP, boost::is_any_of(std::string(":")));
-		if (freq.size()==2) freqstr = freq[1];
-	      } else freqstr = *afP;
-	      float afval = 0;
-	      if (freqstr.size()) {
-		afval = boost::lexical_cast<float>(freqstr);
-		if (afval > popmax) popmax = afval;
-		//std::cerr << *afIt << "\t" << afval << "\t" << afstr << "\t" << popmax << std::endl;
-	      }
-	    }
 	  }
-	  std::string clinsig("unknown");
-	  if (vals[cmap.find("CLIN_SIG")->second].size()) clinsig = vals[cmap.find("CLIN_SIG")->second];
+	}
+	if (carrier.size() >= 1) {
+	  // Compute GT stats
+	  float af = (float) ac[1] / (float) (ac[0] + ac[1]);
+	  float missingRate = (float) uncalled / (float) bcf_hdr_nsamples(hdr);
+	  std::string gtstr = "NA";
+	  if (carrier.size() == 1) {
+	    if (singlecarrier == 1) gtstr = "het";
+	    else if (singlecarrier == 2) gtstr = "hom";
+	  }
+	  
+	  // Get other fields for output
 	  std::string polyphen("unknown");
 	  if (vals[cmap.find("PolyPhen")->second].size()) polyphen = vals[cmap.find("PolyPhen")->second];
 	  std::string sift("unknown");
@@ -328,30 +352,26 @@ int main(int argc, char **argv) {
 	  std::string cons("NA");
 	  if (vals[cmap.find("Consequence")->second].size()) cons = vals[cmap.find("Consequence")->second];
 	  
-	  //for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt) std::cout << cIt->first << ',' << vals[cIt->second] << std::endl;
-	  
-	  // Below 1% population frequency
-	  //if ((popmax < 0.01) || (clinsig.find("pathogenic") != std::string::npos)) {
-	  if (popmax < 0.01) {
-	    uint32_t maxcarrier = 1;
-	    std::string carrierstr;
-	    if (carrier.empty()) carrierstr = "NA";
-	    else {
-	      std::set<std::string>::iterator iter = carrier.begin();
-	      std::set<std::string>::iterator iterEnd = carrier.begin();
-	      carrierstr = *iter;
-	      if (maxcarrier < carrier.size()) std::advance(iterEnd, maxcarrier);
-	      else iterEnd = carrier.end();
-	      for(++iter; iter != iterEnd; ++iter) carrierstr += "," + *iter;
-	    }
-	    std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t";
-	    std::cout << rec->d.allele[1] << "\t" << exvar << "\t" << carrierstr << "\t" << gtstr << "\t";
-	    std::cout << symb << "\t" << exon << "\t" << strand << "\t" << biotyp << "\t";
-	    std::cout << cons << "\t" << clinsig << "\t";
-	    std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
-	    std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << mescan << "\t" << canonical << "\t";
-	    std::cout << carrier.size() << "\t" << af << "\t" << missingRate << std::endl;
+	  // Build carrier string
+	  std::string carrierstr;
+	  if (carrier.empty()) carrierstr = "NA";
+	  else {
+	    std::set<std::string>::iterator iter = carrier.begin();
+	    std::set<std::string>::iterator iterEnd = carrier.begin();
+	    carrierstr = *iter;
+	    if (c.maxCarrier < carrier.size()) std::advance(iterEnd, c.maxCarrier);
+	    else iterEnd = carrier.end();
+	    for(++iter; iter != iterEnd; ++iter) carrierstr += "," + *iter;
 	  }
+
+	  // Output record
+	  std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t";
+	  std::cout << rec->d.allele[1] << "\t" << exvar << "\t" << carrierstr << "\t" << gtstr << "\t";
+	  std::cout << symb << "\t" << exon << "\t" << strand << "\t" << biotyp << "\t";
+	  std::cout << cons << "\t" << clinsig << "\t";
+	  std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
+	  std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << mescan << "\t" << canonical << "\t";
+	  std::cout << carrier.size() << "\t" << af << "\t" << missingRate << std::endl;
 	}
       }
     }
