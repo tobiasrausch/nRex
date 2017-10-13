@@ -118,9 +118,11 @@ popMax(TStrParts const& vals, TMap const& cmap) {
       } else freqstr = *afP;
       float afval = 0;
       if (freqstr.size()) {
-	afval = boost::lexical_cast<float>(freqstr);
-	if (afval > popmax) popmax = afval;
-	//std::cerr << *afIt << "\t" << afval << "\t" << afstr << "\t" << popmax << std::endl;
+	if (freqstr != ".") {
+	  afval = boost::lexical_cast<float>(freqstr);
+	  if (afval > popmax) popmax = afval;
+	  //std::cerr << *afIt << "\t" << afval << "\t" << afstr << "\t" << popmax << std::endl;
+	}
       }
     }
   }
