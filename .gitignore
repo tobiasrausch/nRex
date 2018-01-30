@@ -11,6 +11,7 @@ vep/sites.bcf.csi
 src/vepcache
 src/BioDbBuild/
 src/nRex
+refpanel/
 
 *.*~
 
