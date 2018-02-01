@@ -40,6 +40,8 @@ done
 
 # Decompose multi-allelics and normalize InDels
 bcftools annotate --rename-chrs rn.chrs ${1} | bcftools norm --threads ${THREADS} -f ${VEP_DATA}/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa -m -both - > ${VCF}
+# Without chr renaming
+# bcftools norm --threads ${THREADS} -f ${VEP_DATA}/Homo_sapiens.GRCh37.75.dna.primary_assembly.fa -m -both ${1} > ${VCF}
 rm rn.chrs
 
 # VEP
