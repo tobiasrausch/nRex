@@ -19,7 +19,7 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 
 # Load VEP dependencies
-module load Perl BioPerl DBD-mysql HTSlib BCFtools
+module load HTSlib BCFtools Perl BioPerl DBD-mysql
 export PERL5LIB=${BASEDIR}/BioDbBuild/lib/perl5/x86_64-linux-thread-multi:${PERL5LIB}
 
 # CMD parameters
