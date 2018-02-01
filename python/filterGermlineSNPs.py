@@ -1,12 +1,10 @@
 #! /usr/bin/env python
 
 from __future__ import print_function
-import intervaltree
-import cyvcf2
 import argparse
-import collections
-import numpy
 import sys
+import cyvcf2
+
 
 # Parse command line
 parser = argparse.ArgumentParser(description='Filter germline SNPs using matched tumor(s)')
@@ -45,7 +43,7 @@ if len(germidx) and len(tumidx):
         # Ignore multi-allelics
         if len(record.ALT) > 1:
             continue
-        
+
         # Simple quality filter
         if record.QUAL <= minqual:
             continue
