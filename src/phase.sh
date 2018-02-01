@@ -31,6 +31,7 @@ do
 done
 bcftools annotate -O b -o ${OP}.input.bcf --rename-chrs ${OP}.rename.fwd.chrs ${OP}.called.vcf.gz
 bcftools index ${OP}.input.bcf
+rm ${OP}.called.vcf.gz ${OP}.called.vcf.gz.tbi
 
 # Phase against 1kGP
 FILES=""
