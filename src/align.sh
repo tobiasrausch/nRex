@@ -3,7 +3,7 @@
 if [ $# -ne 5 ]
 then
     echo ""
-    echo "Usage: $0 <wgs|wes|haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>"
+    echo "Usage: $0 <hg19.wgs|hg19.wes|hg19.haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>"
     echo ""
     exit -1
 fi
@@ -42,8 +42,7 @@ bwa mem -t ${THREADS} -R "@RG\tID:${OUTP}\tSM:${OUTP}" ${GENOME} ${FQ1} ${FQ2} |
 samtools sort -@ ${THREADS} -o ${OUTP}.srt.bam ${OUTP}.raw.bam && rm ${OUTP}.raw.bam && samtools index ${OUTP}.srt.bam
 
 # Mark duplicates
-if [ ${ATYPE} == "haloplex" ]
-then
+if [[ ${ATYPE} = *"haloplex"* ]]; then
     mv ${OUTP}.srt.bam ${OUTP}.rmdup.bam
     mv ${OUTP}.srt.bam.bai ${OUTP}.rmdup.bam.bai
 else

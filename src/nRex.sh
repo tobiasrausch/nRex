@@ -6,11 +6,11 @@ then
     echo "nRex: Single-nucleotide variant calling."
     echo "This program comes with ABSOLUTELY NO WARRANTY."
     echo ""
-    echo "nRex (Version: 0.0.6)"
+    echo "nRex (Version: 0.0.7)"
     echo "Contact: Tobias Rausch (rausch@embl.de)"
     echo "**********************************************************************"
     echo ""
-    echo "Usage: $0 <wgs|wes|haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>"
+    echo "Usage: $0 <hg19.wgs|hg19.wes|hg19.haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>"
     echo ""
     exit -1
 fi
@@ -30,4 +30,6 @@ ${BASEDIR}/align.sh $@
 ${BASEDIR}/call.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 
 # Phase variants against 1000 Genomes reference panel
-${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+if [[ ${ATYPE} = *"hg19"* ]]; then
+    ${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+fi
