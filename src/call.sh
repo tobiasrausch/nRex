@@ -3,7 +3,7 @@
 if [ $# -lt 4 ]
 then
     echo ""
-    echo "Usage: $0 <wgs|wes|haloplex> <genome.fa> <output prefix> <sample1.bam> <sample2.bam> ... <sampleN.bam>"
+    echo "Usage: $0 <hg19.wgs|hg19.wes|hg19.haloplex> <genome.fa> <output prefix> <sample1.bam> <sample2.bam> ... <sampleN.bam>"
     echo ""
     exit -1
 fi
@@ -38,8 +38,7 @@ tabix ${OUTP}.norm.vcf.gz
 rm ${OUTP}.vcf.gz ${OUTP}.vcf.gz.tbi
 
 # Fixed threshold filtering
-if [ ${ATYPE} == "haloplex" ]
-then
+if [[ ${ATYPE} = *"haloplex"* ]]; then
     bcftools filter -O z -o ${OUTP}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/AO<=2 || SAF<=2 || SAR<=2' ${OUTP}.norm.vcf.gz
 else
     bcftools filter -O z -o ${OUTP}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/AO<=2 || SAF<=2 || SAR<=2 || RPR<=2 || RPL<=2' ${OUTP}.norm.vcf.gz
