@@ -29,6 +29,9 @@ ${BASEDIR}/align.sh $@
 # Call variants
 ${BASEDIR}/call.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 
+# Calculate coverage
+${BASEDIR}/coverage.sh ${ATYPE} ${OUTP} ${OUTP}.bam
+
 # Phase variants against 1000 Genomes reference panel
 if [[ ${ATYPE} = *"hg19"* ]]; then
     ${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
