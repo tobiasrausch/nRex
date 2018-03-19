@@ -13,8 +13,14 @@ Installing nRex
 `make all`
 
 
+Build BED file with chromosomes and exonic regions for QC
+---------------------------------------------------------
+
+`cd R/ && Rscript exon.R`
+
+
 Running nRex
 ------------
 
-`./src/nRex.sh <wgs|wex|haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>`
+`./src/nRex.sh <hg19.wgs|hg19.wes|hg19.haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>`
 
