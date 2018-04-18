@@ -35,4 +35,9 @@ ${BASEDIR}/coverage.sh ${ATYPE} ${OUTP} ${OUTP}.bam
 # Phase variants against 1000 Genomes reference panel
 if [[ ${ATYPE} = *"hg19"* ]]; then
     ${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+
+    # Further regional masks for hg19 exome data
+    if [[ ${ATYPE} = *"wes"* ]]; then
+	${BASEDIR}/exome_hg19.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+    fi
 fi
