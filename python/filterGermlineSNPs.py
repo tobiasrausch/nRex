@@ -62,7 +62,7 @@ if len(germidx) and len(tumidx):
         for idx in tumidx:
             # Multi-allelics?
             for i in range(len(ao[idx])):
-                if ao[idx][i] >= 2:
+                if ao[idx][i] >= 1:
                     tumorConfirmed = True
         if not tumorConfirmed:
             continue
