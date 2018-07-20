@@ -45,6 +45,7 @@ struct Config {
   bool selTranscripts;
   bool clinvarPathogenic;
   uint32_t maxCarrier;
+  float popmax;
   std::string severity;
   boost::filesystem::path vcf;
   boost::filesystem::path transcripts;
@@ -152,6 +153,7 @@ int main(int argc, char **argv) {
     ("help,?", "show help message")
     ("max-carrier,n", boost::program_options::value<uint32_t>(&c.maxCarrier)->default_value(10), "max. carrier sample to list in the output")
     ("severity,s", boost::program_options::value<std::string>(&c.severity)->default_value("missense"), "max. severity to report [ptv, missense, splice, all]")
+    ("popmax,m", boost::program_options::value<float>(&c.popmax)->default_value(0.01), "max. allowed population frequency to report")
     ("transcripts,t", boost::program_options::value<boost::filesystem::path>(&c.transcripts), "list of selected transcripts (if not provided canonical transcripts are used)")
     ("pathogenic,p", "Always include ClinVar pathogenic variants")
     ("outfile,o", boost::program_options::value<boost::filesystem::path>(&c.outfile)->default_value("variants.tsv"), "output file")
@@ -284,7 +286,7 @@ int main(int argc, char **argv) {
 
 	// Check pop max
 	float popmax = popMax(vals, cmap);
-	if ((popmax >= 0.01) && (!pathogenic)) continue;
+	if ((popmax > c.popmax) && (!pathogenic)) continue;
 	  
 	// Debug
 	//for (typename TColumnMap::const_iterator cIt = cmap.begin(); cIt != cmap.end(); ++cIt)
