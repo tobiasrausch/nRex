@@ -13,6 +13,7 @@ parser.add_argument('-g', '--germ', metavar='blood', required=True, dest='germ',
 parser.add_argument('-t', '--tumor', metavar='tumor', required=True, dest='tumor', help='tumor sample (required)')
 parser.add_argument('-q', '--quality', metavar='20', required=False, dest='quality', help='min. quality (optional)')
 parser.add_argument('-c', '--coverage', metavar='10', required=False, dest='coverage', help='min. coverage (optional)')
+parser.add_argument('-n', '--ncutoff', metavar='1', required=False, dest='ncutoff', help='remove variant if control has this ALT read support (optional)')
 parser.add_argument('-o', '--out', metavar='out.vcf', required=True, dest='out', help='output VCF file (required)')
 args = parser.parse_args()
 
@@ -27,6 +28,11 @@ mincov = 10
 if args.coverage:
     mincov = int(args.coverage)
 
+# Normal ALT support cutoff
+ncutoff = 1
+if args.ncutoff:
+    ncutoff = int(args.ncutoff)
+    
 # Parse VCF
 vcf = cyvcf2.VCF(args.vcf)
 w = cyvcf2.Writer(args.out, vcf)
@@ -87,7 +93,7 @@ if len(germidx) and len(tumidx):
                 dp = ro[gIdx][0] + ao[gIdx][i]
                 if dp >= mincov:
                     validCov = True
-                if ao[gIdx][i] >= 1:
+                if ao[gIdx][i] >= ncutoff:
                     germline = True
                     break
         if not validCov:
