@@ -13,6 +13,7 @@ src/vepcache
 src/BioDbBuild/
 src/nRex
 refpanel/
+refpanelHG38/
 
 *.*~
 
