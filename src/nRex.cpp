@@ -310,17 +310,21 @@ int main(int argc, char **argv) {
 	    if (gt_type != 0) {
 	      carrier.insert(hdr->samples[i]);
 	      singlecarrier = gt_type;
-	  }
+	    }
 	  }
 	}
-	if (carrier.size() >= 1) {
+	if ((carrier.size() >= 1) || (bcf_hdr_nsamples(hdr) == 0)) {
 	  // Compute GT stats
-	  float af = (float) ac[1] / (float) (ac[0] + ac[1]);
-	  float missingRate = (float) uncalled / (float) bcf_hdr_nsamples(hdr);
 	  std::string gtstr = "NA";
-	  if (carrier.size() == 1) {
-	    if (singlecarrier == 1) gtstr = "het";
-	    else if (singlecarrier == 2) gtstr = "hom";
+	  float af = 0;
+	  float missingRate = 0;
+	  if (carrier.size() >= 1) {
+	    af = (float) ac[1] / (float) (ac[0] + ac[1]);
+	    missingRate = (float) uncalled / (float) bcf_hdr_nsamples(hdr);
+	    if (carrier.size() == 1) {
+	      if (singlecarrier == 1) gtstr = "het";
+	      else if (singlecarrier == 2) gtstr = "hom";
+	    }
 	  }
 	  
 	  // Get other fields for output

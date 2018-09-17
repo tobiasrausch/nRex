@@ -24,7 +24,7 @@ bcftools index ${OP}.input.bcf
 
 # Phase against 1kGP
 FILES=""
-for CHR in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22 chrX
+for CHR in chr1 chr2 chr3 chr4 chr5 chr6 chr7 chr8 chr9 chr10 chr11 chr12 chr13 chr14 chr15 chr16 chr17 chr18 chr19 chr20 chr21 chr22
 do
     echo "Eagle2 phasing ${CHR}"
     if [ `bcftools view ${OP}.input.bcf ${CHR} | grep -m 1 "^#CHROM" -A 1 | wc -l` -eq 2 ]
@@ -39,4 +39,4 @@ rm ${OP}.input.bcf ${OP}.input.bcf.csi
 # Concatenate chromosomes
 bcftools concat -O b -o ${OP}.phased.bcf ${FILES}
 bcftools index ${OP}.phased.bcf
-#rm ${OP}.chr*.eagle2.bcf ${OP}.chr*.eagle2.bcf.csi
+rm ${OP}.chr*.eagle2.bcf ${OP}.chr*.eagle2.bcf.csi

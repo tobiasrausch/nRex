@@ -2,7 +2,8 @@
 
 set -e
 
-module load foss Boost HTSlib BCFtools SAMtools zlib bzip2 ncurses &> /dev/null
+module load foss Boost/1.61.0-foss-2016b-Python-2.7.12 BCFtools/1.5-foss-2016b SAMtools/1.5-foss-2016b lxml/3.6.4-foss-2016b-Python-2.7.12 HTSlib/1.5-foss-2016b zlib bzip2 ncurses &> /dev/null
+
 
 CXX="g++"
 CXXFLAGS="-isystem ${EBROOTHTSLIB} -isystem ${BOOST_ROOT} -pedantic -W -Wall -Wno-unknown-pragmas -fno-strict-aliasing -O3 -fno-tree-vectorize -DNDEBUG -D__STDC_LIMIT_MACROS"
