@@ -44,7 +44,7 @@ rm ${OUTP}.vcf.gz ${OUTP}.vcf.gz.tbi
 if [[ ${ATYPE} = *"haloplex"* ]]; then
     bcftools filter -O z -o ${OUTP}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2' ${OUTP}.norm.vcf.gz
 else
-    bcftools filter -O z -o ${OUTP}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2 || RPR<=2 || RPL<=2' ${OUTP}.norm.vcf.gz
+    bcftools filter -O z -o ${OUTP}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2 || RPR<=1 || RPL<=1' ${OUTP}.norm.vcf.gz
 fi
 tabix ${OUTP}.norm.filtered.vcf.gz
 rm ${OUTP}.norm.vcf.gz ${OUTP}.norm.vcf.gz.tbi
