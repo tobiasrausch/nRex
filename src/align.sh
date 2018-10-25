@@ -56,6 +56,10 @@ samtools flagstat ${OUTP}.rmdup.bam > ${OUTP}.flagstat
 
 # Run alfred for BAM statistics
 alfred qc -b ${BASEDIR}/../R/${ATYPE}.bed.gz -r ${GENOME} -o ${OUTP}.alfred.tsv.gz ${OUTP}.rmdup.bam
+# WES
+#alfred qc -b ${BASEDIR}/../R/${ATYPE}.bed.gz -r ${GENOME} -o ${OUTP}.alfred.tsv.gz ${OUTP}.rmdup.bam
+# WGS
+alfred qc -r ${GENOME} -f json -o ${OUTP}.alfred.json.gz ${OUTP}.rmdup.bam
 
 # Filter duplicates, unmapped reads, chrM and unplaced contigs
 CHRS=`zcat ${BASEDIR}/../R/${ATYPE}.bed.gz | cut -f 1 | sort -k1,1V -k2,2n | uniq | tr '\n' ' '`
