@@ -42,7 +42,10 @@ rm ${OUTP}.vcf.gz ${OUTP}.vcf.gz.tbi
 
 # Fixed threshold filtering
 if [[ ${ATYPE} = *"haloplex"* ]]; then
+    # Stringent parameters
     bcftools filter -O z -o ${OUTP}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2' ${OUTP}.norm.vcf.gz
+    # Relaxed parameters
+    #bcftools filter -O z -o ${OUTP}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/INFO/AO<=2 || SAF<=1 || SAR<=1' ${OUTP}.norm.vcf.gz
 else
     # Stringent parameters
     bcftools filter -O z -o ${OUTP}.norm.filtered.vcf.gz -e '%QUAL<=20 || %QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2 || RPR<=2 || RPL<=2' ${OUTP}.norm.vcf.gz
