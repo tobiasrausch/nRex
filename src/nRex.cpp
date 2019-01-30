@@ -248,7 +248,7 @@ int main(int argc, char **argv) {
   std::cout << "chr\tpos\tref\talt\texisting_variation\tsingleton\tgt\tsymbol\texon\tstrand\t";
   std::cout << "biotype\tconsequence\tclin_sig\tpopmax\thgvsc\thgvsp\timpact\t";
   std::cout << "polyphen\tsift\tLoFtool\tMaxEntScan(Ref,Alt,Diff)\tcanonical\t";
-  std::cout << "carrier\tvaf\tvcfaf\tmissingrate" << std::endl;
+  std::cout << "carrier\tvaf\tdepth\tvcfaf\tmissingrate" << std::endl;
 
   // Parse VCF records
   bcf1_t* rec = bcf_init();
@@ -304,6 +304,7 @@ int main(int argc, char **argv) {
 	int nad = 0;
 	double adAggr = 0;
 	int32_t adAggrN = 0;
+	int sitedepth = 0;
 	if (_isKeyPresent(hdr, "AD")) {
 	  bcf_get_format_int32(hdr, rec, "AD", &ad, &nad);
 	}
@@ -328,6 +329,7 @@ int main(int argc, char **argv) {
 
 	      if (ad != NULL) {
 		if ((ad[i*2] + ad[i*2 + 1]) > 0) {
+		  sitedepth += (ad[i*2] + ad[i*2 + 1]);
 		  adAggr += ((double) (ad[i*2 + 1]) / (double) (ad[i*2] + ad[i*2 + 1]));
 		  ++adAggrN;
 		}
@@ -335,7 +337,10 @@ int main(int argc, char **argv) {
 	    }
 	  }
 	}
-	if (adAggrN) adAggr /= (double) adAggrN;
+	if (adAggrN) {
+	  adAggr /= (double) adAggrN;
+	  sitedepth /= adAggrN;
+	}
 	if (ad != NULL) free(ad);
 	if ((carrier.size() >= 1) || (bcf_hdr_nsamples(hdr) == 0)) {
 	  // Compute GT stats
@@ -403,7 +408,7 @@ int main(int argc, char **argv) {
 	  std::cout << cons << "\t" << clinsig << "\t";
 	  std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
 	  std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << mescan << "\t" << canonical << "\t";
-	  std::cout << carrier.size() << "\t" << adAggr << "\t" << af << "\t" << missingRate << std::endl;
+	  std::cout << carrier.size() << "\t" << adAggr << "\t" << sitedepth << "\t" << af << "\t" << missingRate << std::endl;
 	}
       }
     }
