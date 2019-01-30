@@ -52,6 +52,11 @@ struct Config {
   boost::filesystem::path outfile;
 };
 
+
+inline bool
+_isKeyPresent(bcf_hdr_t const* hdr, std::string const& key) {
+  return (bcf_hdr_id2int(hdr, BCF_DT_ID, key.c_str())>=0);
+}
   
 template<typename TMap>
 inline bool
@@ -243,7 +248,7 @@ int main(int argc, char **argv) {
   std::cout << "chr\tpos\tref\talt\texisting_variation\tsingleton\tgt\tsymbol\texon\tstrand\t";
   std::cout << "biotype\tconsequence\tclin_sig\tpopmax\thgvsc\thgvsp\timpact\t";
   std::cout << "polyphen\tsift\tLoFtool\tMaxEntScan(Ref,Alt,Diff)\tcanonical\t";
-  std::cout << "carrier\taf\tmissingrate" << std::endl;
+  std::cout << "carrier\tvaf\tvcfaf\tmissingrate" << std::endl;
 
   // Parse VCF records
   bcf1_t* rec = bcf_init();
@@ -252,6 +257,7 @@ int main(int argc, char **argv) {
 
     // Only bi-allelic
     if (rec->n_allele == 2) {
+
       // Parse VEP
       typedef std::vector<std::string> TStrParts;
       std::string vep;
@@ -293,6 +299,15 @@ int main(int argc, char **argv) {
 	//if (cIt->second < (int32_t) vals.size()) std::cerr << cIt->first << ',' << vals[cIt->second] << std::endl;
 	//std::cerr << std::endl;
 
+	// Get allelic depth
+	int32_t* ad = NULL;
+	int nad = 0;
+	double adAggr = 0;
+	int32_t adAggrN = 0;
+	if (_isKeyPresent(hdr, "AD")) {
+	  bcf_get_format_int32(hdr, rec, "AD", &ad, &nad);
+	}
+	
 	// Get allele frequency
 	bcf_unpack(rec, BCF_UN_ALL);
 	bcf_get_format_int32(hdr, rec, "GT", &gt, &ngt);
@@ -310,9 +325,18 @@ int main(int argc, char **argv) {
 	    if (gt_type != 0) {
 	      carrier.insert(hdr->samples[i]);
 	      singlecarrier = gt_type;
+
+	      if (ad != NULL) {
+		if ((ad[i*2] + ad[i*2 + 1]) > 0) {
+		  adAggr += ((double) (ad[i*2 + 1]) / (double) (ad[i*2] + ad[i*2 + 1]));
+		  ++adAggrN;
+		}
+	      }
 	    }
 	  }
 	}
+	if (adAggrN) adAggr /= (double) adAggrN;
+	if (ad != NULL) free(ad);
 	if ((carrier.size() >= 1) || (bcf_hdr_nsamples(hdr) == 0)) {
 	  // Compute GT stats
 	  std::string gtstr = "NA";
@@ -379,7 +403,7 @@ int main(int argc, char **argv) {
 	  std::cout << cons << "\t" << clinsig << "\t";
 	  std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
 	  std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << mescan << "\t" << canonical << "\t";
-	  std::cout << carrier.size() << "\t" << af << "\t" << missingRate << std::endl;
+	  std::cout << carrier.size() << "\t" << adAggr << "\t" << af << "\t" << missingRate << std::endl;
 	}
       }
     }
