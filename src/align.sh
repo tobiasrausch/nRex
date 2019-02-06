@@ -39,7 +39,7 @@ mkdir -p ${OUTP}_prefastqc/ && fastqc -t ${THREADS} -o ${OUTP}_prefastqc/ ${FQ1}
 bwa mem -t ${THREADS} -R "@RG\tID:${OUTP}\tSM:${OUTP}" ${GENOME} ${FQ1} ${FQ2} | samtools view -bT ${GENOME} - > ${OUTP}.raw.bam
 
 # Sort & Index
-samtools sort -@ ${THREADS} -o ${OUTP}.srt.bam ${OUTP}.raw.bam && rm ${OUTP}.raw.bam && samtools index ${OUTP}.srt.bam
+samtools sort -@ ${THREADS} -m 1536M -o ${OUTP}.srt.bam ${OUTP}.raw.bam && rm ${OUTP}.raw.bam && samtools index ${OUTP}.srt.bam
 
 # Mark duplicates
 if [[ ${ATYPE} = *"haloplex"* ]]; then
