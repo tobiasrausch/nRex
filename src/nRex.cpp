@@ -335,6 +335,11 @@ int main(int argc, char **argv) {
 		}
 	      }
 	    }
+	  } else {
+	    ++uncalled;
+	    // Treat missing as hom. reference, 0/0
+	    ++ac[0];
+	    ++ac[0];
 	  }
 	}
 	if (adAggrN) {
