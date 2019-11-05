@@ -29,6 +29,7 @@ fi
 
 # Freebayes
 freebayes --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.15 --fasta-reference ${GENOME} --genotype-qualities $@ -v ${OUTP}.vcf
+#freebayes --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.01 --fasta-reference ${GENOME} --genotype-qualities $@ -v ${OUTP}.vcf
 cat ${OUTP}.vcf | grep "^#" > ${OUTP}.vcf.tmp
 cat ${OUTP}.vcf| grep -v "^#" | sort -k1,1V -k2,2n >> ${OUTP}.vcf.tmp
 mv ${OUTP}.vcf.tmp ${OUTP}.vcf
