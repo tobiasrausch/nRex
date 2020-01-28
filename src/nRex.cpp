@@ -46,6 +46,7 @@ struct Config {
   bool clinvarPathogenic;
   uint32_t maxCarrier;
   float popmax;
+  float vcfmax;
   std::string severity;
   boost::filesystem::path vcf;
   boost::filesystem::path transcripts;
@@ -159,6 +160,7 @@ int main(int argc, char **argv) {
     ("max-carrier,n", boost::program_options::value<uint32_t>(&c.maxCarrier)->default_value(10), "max. carrier sample to list in the output")
     ("severity,s", boost::program_options::value<std::string>(&c.severity)->default_value("missense"), "max. severity to report [ptv, missense, splice, all]")
     ("popmax,m", boost::program_options::value<float>(&c.popmax)->default_value(0.01), "max. allowed population frequency to report")
+    ("vcfaf,v", boost::program_options::value<float>(&c.vcfmax)->default_value(1.00), "max. allowed population frequency inferred from VCF")
     ("transcripts,t", boost::program_options::value<boost::filesystem::path>(&c.transcripts), "list of selected transcripts (if not provided canonical transcripts are used)")
     ("pathogenic,p", "Always include ClinVar pathogenic variants")
     ("outfile,o", boost::program_options::value<boost::filesystem::path>(&c.outfile)->default_value("variants.tsv"), "output file")
@@ -245,7 +247,7 @@ int main(int argc, char **argv) {
   int32_t ncsq = 0;
   char* csq = NULL;
 
-  std::cout << "chr\tpos\tref\talt\texisting_variation\tsingleton\tgt\tsymbol\texon\tstrand\t";
+  std::cout << "chr\tpos\tref\talt\texisting_variation\tcarriers\tgt\tsymbol\texon\tstrand\t";
   std::cout << "biotype\tconsequence\tclin_sig\tpopmax\thgvsc\thgvsp\timpact\t";
   std::cout << "polyphen\tsift\tLoFtool\tMaxEntScan(Ref,Alt,Diff)\tcanonical\t";
   std::cout << "carrier\tvaf\tdepth\tvcfaf\tmissingrate" << std::endl;
@@ -407,13 +409,15 @@ int main(int argc, char **argv) {
 	  }
 
 	  // Output record
-	  std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t";
-	  std::cout << rec->d.allele[1] << "\t" << exvar << "\t" << carrierstr << "\t" << gtstr << "\t";
-	  std::cout << symb << "\t" << exon << "\t" << strand << "\t" << biotyp << "\t";
-	  std::cout << cons << "\t" << clinsig << "\t";
-	  std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
-	  std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << mescan << "\t" << canonical << "\t";
-	  std::cout << carrier.size() << "\t" << adAggr << "\t" << sitedepth << "\t" << af << "\t" << missingRate << std::endl;
+	  if (af <= c.vcfmax) {
+	    std::cout << bcf_hdr_id2name(hdr, rec->rid) << "\t" << rec->pos + 1 << "\t" << rec->d.allele[0] << "\t";
+	    std::cout << rec->d.allele[1] << "\t" << exvar << "\t" << carrierstr << "\t" << gtstr << "\t";
+	    std::cout << symb << "\t" << exon << "\t" << strand << "\t" << biotyp << "\t";
+	    std::cout << cons << "\t" << clinsig << "\t";
+	    std::cout << popmax << "\t" << hgvsc << "\t" << hgvsp << "\t";
+	    std::cout << impact << "\t" << polyphen << "\t" << sift << "\t" << loftool << "\t" << mescan << "\t" << canonical << "\t";
+	    std::cout << carrier.size() << "\t" << adAggr << "\t" << sitedepth << "\t" << af << "\t" << missingRate << std::endl;
+	  }
 	}
       }
     }
