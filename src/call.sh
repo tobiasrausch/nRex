@@ -35,7 +35,11 @@ then
     freebayes --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.15 --fasta-reference ${GENOME} --genotype-qualities $@ -v ${OUTP}.vcf
     #freebayes --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.01 --fasta-reference ${GENOME} --genotype-qualities $@ -v ${OUTP}.vcf
 else
-    ${STRELKAROOT}/bin/configureStrelkaGermlineWorkflow.py --bam `echo ${@} | sed 's/[ \t][ \t]*/ --bam /g'` --referenceFasta ${GENOME} --runDir ${OUTP}_strelkaWES
+    if [[ ${ATYPE} = *"wes"* ]]; then
+	${STRELKAROOT}/bin/configureStrelkaGermlineWorkflow.py --exome --bam `echo ${@} | sed 's/[ \t][ \t]*/ --bam /g'` --referenceFasta ${GENOME} --runDir ${OUTP}_strelkaWES
+    else
+	${STRELKAROOT}/bin/configureStrelkaGermlineWorkflow.py --bam `echo ${@} | sed 's/[ \t][ \t]*/ --bam /g'` --referenceFasta ${GENOME} --runDir ${OUTP}_strelkaWES
+    fi
     ${OUTP}_strelkaWES/runWorkflow.py -m local -j ${THREADS}
     bcftools view -f PASS ${OUTP}_strelkaWES/results/variants/variants.vcf.gz > ${OUTP}.vcf
     rm -rf ${OUTP}_strelkaWES

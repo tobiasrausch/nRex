@@ -45,6 +45,7 @@ struct Config {
   bool selTranscripts;
   bool clinvarPathogenic;
   uint32_t maxCarrier;
+  uint32_t minQuality;
   float popmax;
   float vcfmax;
   std::string severity;
@@ -157,6 +158,7 @@ int main(int argc, char **argv) {
   boost::program_options::options_description generic("Generic options");
   generic.add_options()
     ("help,?", "show help message")
+    ("quality,q", boost::program_options::value<uint32_t>(&c.minQuality)->default_value(0), "min. quality of variant")
     ("max-carrier,n", boost::program_options::value<uint32_t>(&c.maxCarrier)->default_value(10), "max. carrier sample to list in the output")
     ("severity,s", boost::program_options::value<std::string>(&c.severity)->default_value("missense"), "max. severity to report [ptv, missense, splice, all]")
     ("popmax,m", boost::program_options::value<float>(&c.popmax)->default_value(0.01), "max. allowed population frequency to report")
@@ -256,6 +258,9 @@ int main(int argc, char **argv) {
   bcf1_t* rec = bcf_init();
   while (bcf_read(ifile, hdr, rec) == 0) {
     bcf_unpack(rec, BCF_UN_INFO);
+
+    // Check quality
+    if (rec->qual < c.minQuality) continue;
 
     // Only bi-allelic
     if (rec->n_allele == 2) {

@@ -10,7 +10,7 @@ fi
 
 SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
-BWAALIGN=1  # BWA
+BWAALIGN=1  # BWA or bowtie2
 
 # Add all required binaries
 export PATH=/g/funcgen/bin:${PATH}
