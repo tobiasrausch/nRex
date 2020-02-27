@@ -203,6 +203,9 @@ int main(int argc, char **argv) {
   c.selTranscripts = false;
   if (vm.count("transcripts")) {
     if (!(boost::filesystem::exists(c.transcripts) && boost::filesystem::is_regular_file(c.transcripts) && boost::filesystem::file_size(c.transcripts))) {
+      std::cerr << "Transcript file is missing: " << c.transcripts.string() << std::endl;
+      return 1;
+    } else {
       c.selTranscripts = true;
       std::string line;
       std::ifstream ifile(c.transcripts.string().c_str());
