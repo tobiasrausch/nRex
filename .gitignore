@@ -7,6 +7,7 @@ nRex.slurm_submit.sh
 .loftool
 .exacpli
 .mpc
+.htslib
 vep/sites.bcf
 vep/sites.bcf.csi
 src/vepcache
