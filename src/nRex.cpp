@@ -329,7 +329,7 @@ int main(int argc, char **argv) {
 	int32_t uncalled = 0;
 	int32_t singlecarrier = 0;
 	for (int i = 0; i < bcf_hdr_nsamples(hdr); ++i) {
-	  if ((bcf_gt_allele(gt[i*2]) != -1) && (bcf_gt_allele(gt[i*2 + 1]) != -1)) {
+	  if ((bcf_gt_allele(gt[i*2]) != bcf_gt_missing) && (bcf_gt_allele(gt[i*2 + 1]) != bcf_gt_missing)) {
 	    int gt_type = bcf_gt_allele(gt[i*2]) + bcf_gt_allele(gt[i*2 + 1]);
 	    ++ac[bcf_gt_allele(gt[i*2])];
 	    ++ac[bcf_gt_allele(gt[i*2 + 1])];
