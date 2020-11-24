@@ -329,10 +329,21 @@ int main(int argc, char **argv) {
 	int32_t uncalled = 0;
 	int32_t singlecarrier = 0;
 	for (int i = 0; i < bcf_hdr_nsamples(hdr); ++i) {
-	  if ((bcf_gt_allele(gt[i*2]) != bcf_gt_missing) && (bcf_gt_allele(gt[i*2 + 1]) != bcf_gt_missing)) {
-	    int gt_type = bcf_gt_allele(gt[i*2]) + bcf_gt_allele(gt[i*2 + 1]);
-	    ++ac[bcf_gt_allele(gt[i*2])];
-	    ++ac[bcf_gt_allele(gt[i*2 + 1])];
+	  if (gt[i*2] == bcf_gt_missing) {
+	    ++uncalled;
+	    // Treat missing as hom. reference, 0/0
+	    ++ac[0];
+	    ++ac[0];
+	  } else {
+	    int32_t a1 = bcf_gt_allele(gt[i*2]);
+	    int32_t a2 = a1;
+	    if (gt[i*2 + 1] != bcf_int32_vector_end) {    // No haploid call
+	      if (gt[i*2 + 1] == bcf_gt_missing) continue;
+	      a2 = bcf_gt_allele(gt[i*2 + 1]);
+	    }
+	    int32_t gt_type = a1 + a2;
+	    ++ac[a1];
+	    ++ac[a2];
 	    if (gt_type != 0) {
 	      carrier.insert(hdr->samples[i]);
 	      singlecarrier = gt_type;
@@ -345,11 +356,6 @@ int main(int argc, char **argv) {
 		}
 	      }
 	    }
-	  } else {
-	    ++uncalled;
-	    // Treat missing as hom. reference, 0/0
-	    ++ac[0];
-	    ++ac[0];
 	  }
 	}
 	if (adAggrN) {
