@@ -21,7 +21,7 @@ FQ2=${3}
 THREADS=8
 
 # FastQC
-mkdir prefastqc
+mkdir fastqc_${OUTP}
 fastqc -t ${THREADS} -o fastqc_${OUTP}/ ${FQ1}
 fastqc -t ${THREADS} -o fastqc_${OUTP}/ ${FQ2}
 
