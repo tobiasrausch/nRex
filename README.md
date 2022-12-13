@@ -16,7 +16,7 @@ nRex is a germline & somatic single-nucleotide variant calling pipeline
 
 ## Download haplotype reference panel
 
-`cd refpanel/ && ./download.sh
+`cd refpanel/ && ./download.sh`
 
 ## Running nRex for GRCh38
 
