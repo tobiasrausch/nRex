@@ -1,10 +1,8 @@
-nRex
-====
+# nRex
 
-nRex is a germline & somatic single-nucleotide variant calling method.
+nRex is a germline & somatic single-nucleotide variant calling pipeline
 
-Installing nRex
----------------
+## Installing nRex
 
 `git clone --recursive https://github.com/tobiasrausch/nRex.git`
 
@@ -12,15 +10,14 @@ Installing nRex
 
 `make all`
 
+## Download reference genome
 
-Build BED file with chromosomes and exonic regions for QC
----------------------------------------------------------
+`cd genome/ && ./prepare_genome.sh`
 
-`cd R/ && Rscript exon.R`
+## Download haplotype reference panel
 
+`cd refpanel/ && ./download.sh
 
-Running nRex
-------------
+## Running nRex for GRCh38
 
-`./src/nRex.sh <hg19.wgs|hg19.wes|hg19.haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>`
-
+`./src/nRex.sh <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>`

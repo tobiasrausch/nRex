@@ -1,27 +1,30 @@
 #!/bin/bash
 
-if [ $# -ne 3 ]
+if [ $# -ne 5 ]
 then
     echo ""
-    echo "Usage: $0 <hg19.wgs|hg19.wes|hg19.haloplex> <output prefix> <sample1.bam>"
+    echo "Usage: $0 <hg19.wgs|hg19.wes|hg19.haloplex> <genome.fa> <map.fa.gz> <output prefix> <sample1.bam>"
     echo ""
     exit -1
 fi
 
 SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
+export PATH=${BASEDIR}/../conda/bin:${PATH}
 
-# Add all required binaries
-export PATH=/g/funcgen/bin:${PATH}
+source activate align
 
 # CMD parameters
 ATYPE=${1}
-OUTP=${2}
-BAMFILE=${3}
+GENOME=${2}
+MAP=${3}
+OUTP=${4}
+BAMFILE=${5}
 
 # Calculate coverage in windows or exonic regions
 if [[ ${ATYPE} = *"wgs"* ]]; then
-    alfred count_dna -m 20 -s 10000 -t 10000 -o ${OUTP}.cov.gz ${BAMFILE}
+    WIN=1000
+    delly cnv -i ${WIN} -j ${WIN} -w ${WIN} -g ${GENOME} -m ${MAP} -o ${OUTP}.cov.bcf -c ${OUTP}.cov.gz ${BAMFILE}
 else
-    alfred count_dna -m 20 -i ${BASEDIR}/../R/${ATYPE}.bed.gz -o ${OUTP}.cov.gz ${BAMFILE}
+    delly cnv -r <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) -n -b <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) -g ${GENOME} -m ${MAP} -o ${OUTP}.cov.bcf -c ${OUTP}.cov.gz ${BAMFILE}
 fi

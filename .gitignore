@@ -1,49 +1,8 @@
-nRex.slurm_submit.sh
-.vep
-.biodbhts
-.gnomADg
-.egenome
-.maxentscan
-.loftool
-.exacpli
-.mpc
-.htslib
-vep/sites.bcf
-vep/sites.bcf.csi
-src/vepcache
-src/BioDbBuild/
-src/nRex
+.check
+.conda
+.mamba
+.tools
+conda/
+genome/
 refpanel/
 refpanelHG38/
-
-*.*~
-
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
-
-# Precompiled Headers
-*.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
-
-# Executables
-*.exe
-*.out
-*.app
