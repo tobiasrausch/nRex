@@ -22,8 +22,8 @@ THREADS=8
 
 # FastQC
 mkdir prefastqc
-fastqc -t ${THREADS} -o prefastqc/ ${FQ1}
-fastqc -t ${THREADS} -o prefastqc/ ${FQ2}
+fastqc -t ${THREADS} -o fastqc_${OUTP}/ ${FQ1}
+fastqc -t ${THREADS} -o fastqc_${OUTP}/ ${FQ2}
 
 # Adapter trimming
 trim_galore --paired --basename ${OUTP} ${FQ1} ${FQ2}
