@@ -6,4 +6,5 @@ conda/
 genome/
 refpanel/
 refpanelHG38/
+shapeit*/
 *~

@@ -58,12 +58,10 @@ fi
 # QC summary
 ${BASEDIR}/qc.sh ${OUTP}
 
-# Phase variants against 1000 Genomes reference panel
-if [[ ${ATYPE} = *"hg19"* ]]; then
-    ${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
-
-    # Further regional masks for hg19 exome data
-    if [[ ${ATYPE} = *"wes"* ]]; then
-	${BASEDIR}/exome_hg19.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+# Optional: Phasing
+if [[ ${ATYPE} = *"hg38"* ]]; then
+    if [ -f ${BASEDIR}/../shapeit4-4.2.2/bin/shapeit4.2 ]
+    then
+	echo ${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
     fi
 fi
