@@ -14,9 +14,10 @@ rm GCA_000001405.15_GRCh38_no_alt_analysis_set_maskedGRC_exclusions_v2.fasta.gz
 # Index
 bwa index hg38.fa
 
-# Mappability map
+# Mappability and exclude maps
 wget https://gear.embl.de/data/delly/Homo_sapiens.GRCh38.dna.primary_assembly.fa.r101.s501.blacklist.gz
 samtools faidx Homo_sapiens.GRCh38.dna.primary_assembly.fa.r101.s501.blacklist.gz
+wget https://raw.githubusercontent.com/dellytools/delly/main/excludeTemplates/human.hg38.excl.tsv
 
 # Genome bed
 cat hg38.fa.fai  | awk '{print $1"\t1\t"$2;}' | grep -P "^chr[0-9XYM]*\t" > hg38.wgs.bed

@@ -37,7 +37,7 @@ then
     rm ${OUTP}_val_1.fq.gz ${OUTP}_val_2.fq.gz
 fi
 
-# Call variants
+# Call variants [can be jointly run on multiple BAM files]
 if [ ! -f ${OUTP}.vcf.gz ]
 then
     ${BASEDIR}/call.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
@@ -47,6 +47,12 @@ fi
 if [ ! -f ${OUTP}.${ATYPE}.vcf.gz ]
 then
     ${BASEDIR}/filter.sh ${ATYPE} ${GENOME} ${OUTP}
+fi
+
+# Structural variants [can be jointly run on multiple BAM files]
+if [ ! -f ${OUTP}.delly.bcf ]
+then
+    ${BASEDIR}/delly.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 fi
 
 # Calculate coverage
