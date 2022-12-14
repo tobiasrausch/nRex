@@ -42,9 +42,28 @@ if (os.path.exists(filep)) and (os.path.isfile(filep)):
                     qc['MedianInsertSize'] = records[columns.index('MedianInsertSize')]
                     qc['PercDuplicate'] = str(round(float(records[columns.index('DuplicateFraction')]) * 100, 2)) + "%"
                     qc['PercMappedSameChr'] = str(round(float(records[columns.index('MappedSameChrFraction')]) * 100, 2)) + "%"
+
+# Variants
+filep = args.prefix + ".vcf.gz"
+if (os.path.exists(filep)) and (os.path.isfile(filep)):
+    lnum = 0
+    with gzip.open(filep, 'rt') as f:
+        for line in f:
+            if not line.startswith("#"):
+                lnum += 1
+    qc['UnfilteredVariants'] = lnum
+filep = args.prefix + ".hg38.wgs.vcf.gz"
+if (os.path.exists(filep)) and (os.path.isfile(filep)):
+    lnum = 0
+    with gzip.open(filep, 'rt') as f:
+        for line in f:
+            if not line.startswith("#"):
+                lnum += 1
+    qc['FilteredVariants'] = lnum
+    
                     
 # Output QC dictionary
 #print(qc.keys())
-for key in ['Sample', 'PercUnmapped', 'PercSeqError', 'MedianCoverage', 'SDCoverage', 'MedianInsertSize', 'PercDuplicate', 'PercMappedSameChr']:
+for key in ['Sample', 'AdaptersRead1', 'AdaptersRead2', 'PercUnmapped', 'PercSeqError', 'MedianCoverage', 'SDCoverage', 'MedianInsertSize', 'PercDuplicate', 'PercMappedSameChr', 'UnfilteredVariants', 'FilteredVariants']:
     if key in qc.keys():
         print(key, qc[key])

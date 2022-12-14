@@ -56,7 +56,7 @@ then
 fi
 
 # QC summary
-./qc.sh ${OUTP}
+${BASEDIR}/qc.sh ${OUTP}
 
 # Phase variants against 1000 Genomes reference panel
 if [[ ${ATYPE} = *"hg19"* ]]; then
