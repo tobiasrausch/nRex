@@ -38,7 +38,16 @@ then
 fi
 
 # Call variants
-${BASEDIR}/call.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
+if [ ! -f ${OUTP}.vcf.gz ]
+then
+    ${BASEDIR}/call.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
+fi
+
+# Filter variants
+if [ ! -f ${OUTP}.${ATYPE}.vcf.gz ]
+then
+    ${BASEDIR}/filter.sh ${ATYPE} ${GENOME} ${OUTP}
+fi
 
 # Calculate coverage
 if [ ! -f ${OUTP}.cov.gz ]
