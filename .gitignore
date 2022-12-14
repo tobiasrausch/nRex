@@ -2,9 +2,12 @@
 .conda
 .mamba
 .tools
+.shapeit
+.vep
 conda/
 genome/
 refpanel/
 refpanelHG38/
 shapeit*/
+vep_data/
 *~

@@ -14,9 +14,21 @@ nRex is a germline & somatic single-nucleotide variant calling pipeline for whol
 
 `cd genome/ && ./prepare_genome.sh`
 
-## Download haplotype reference panel
+## Optional: VEP annotation of variants
+
+To activate the annotation of variants using VEP, you need to download an offline annotation cache for GRCh38
+
+`make .vep`
+
+## Optional: Phasing of variants using a haplotype reference panel
+
+To activate the phasing of variants, you need to download a haplotype reference panel
 
 `cd refpanel/ && ./download.sh`
+
+and install shapeit (see shapeit documentation)
+
+`make .shapeit`
 
 ## Running nRex for GRCh38
 

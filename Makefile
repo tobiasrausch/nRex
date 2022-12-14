@@ -21,5 +21,8 @@ all: ${TARGETS}
 .shapeit: .conda .mamba .tools
 	wget 'https://github.com/odelaneau/shapeit4/archive/refs/tags/v4.2.2.tar.gz' && tar -xzf v4.2.2.tar.gz && rm v4.2.2.tar.gz && cd shapeit4-4.2.2/ && make all && cd .. && cd shapeit4-4.2.2/maps/ && tar -xzf genetic_maps.b38.tar.gz && cd ../../ && touch .shapeit
 
+.vep: .conda .mamba .tools
+	mkdir vep_data && chmod a+rwx vep_data && docker run -t -i -v ${PBASE}/vep_data:/opt/vep/.vep ensemblorg/ensembl-vep INSTALL.pl -a cfp -s homo_sapiens -y GRCh38 -g all && touch .vep
+
 clean:
 	rm -rf $(TARGETS) $(TARGETS:=.o) conda/ pangolin/
