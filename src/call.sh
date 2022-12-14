@@ -20,7 +20,7 @@ OUTP=${3}
 shift 3
 THREADS=8
 
-freebayes --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.15 --fasta-reference ${GENOME} --genotype-qualities $@ -v ${OUTP}.vcf
+freebayes --targets <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.15 --fasta-reference ${GENOME} --genotype-qualities $@ -v ${OUTP}.vcf
 #freebayes --no-partial-observations --min-repeat-entropy 1 --report-genotype-likelihood-max --min-alternate-fraction 0.01 --fasta-reference ${GENOME} --genotype-qualities $@ -v ${OUTP}.vcf
 bgzip ${OUTP}.vcf
 tabix ${OUTP}.vcf.gz

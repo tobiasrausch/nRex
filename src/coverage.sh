@@ -23,7 +23,7 @@ BAMFILE=${5}
 
 # Calculate coverage in windows or exonic regions
 if [[ ${ATYPE} = *"wgs"* ]]; then
-    WIN=1000
+    WIN=10000
     delly cnv -i ${WIN} -j ${WIN} -w ${WIN} -g ${GENOME} -m ${MAP} -o ${OUTP}.cov.bcf -c ${OUTP}.cov.gz ${BAMFILE}
 else
     delly cnv -r <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) -n -b <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) -g ${GENOME} -m ${MAP} -o ${OUTP}.cov.bcf -c ${OUTP}.cov.gz ${BAMFILE}

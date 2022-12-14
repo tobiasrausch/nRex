@@ -41,7 +41,10 @@ fi
 ${BASEDIR}/call.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 
 # Calculate coverage
-${BASEDIR}/coverage.sh ${ATYPE} ${GENOME} ${MAP} ${OUTP} ${OUTP}.bam
+if [ ! -f ${OUTP}.cov.gz ]
+then
+    ${BASEDIR}/coverage.sh ${ATYPE} ${GENOME} ${MAP} ${OUTP} ${OUTP}.bam
+fi
 
 # QC summary
 python ${BASEDIR}/../scripts/qc.py -p ${OUTP} > ${OUTP}.qc.summary
