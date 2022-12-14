@@ -47,7 +47,7 @@ then
 fi
 
 # QC summary
-python ${BASEDIR}/../scripts/qc.py -p ${OUTP} > ${OUTP}.qc.summary
+./qc.sh ${OUTP}
 
 # Phase variants against 1000 Genomes reference panel
 if [[ ${ATYPE} = *"hg19"* ]]; then
