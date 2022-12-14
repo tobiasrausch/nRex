@@ -19,7 +19,7 @@ all: ${TARGETS}
 	export PATH=${PBASE}/conda/bin:${PATH} && source activate align && samtools --version && bcftools --version && bedtools --version && bgzip --version && tabix --version && trim_galore --version && delly --version && echo "Installation complete!" && touch .check
 
 .shapeit: .conda .mamba .tools
-	wget 'https://github.com/odelaneau/shapeit4/archive/refs/tags/v4.2.2.tar.gz' && tar -xzf v4.2.2.tar.gz && rm v4.2.2.tar.gz && cd shapeit4-4.2.2/ && make all && cd .. && touch .shapeit
+	wget 'https://github.com/odelaneau/shapeit4/archive/refs/tags/v4.2.2.tar.gz' && tar -xzf v4.2.2.tar.gz && rm v4.2.2.tar.gz && cd shapeit4-4.2.2/ && make all && cd .. && cd shapeit4-4.2.2/maps/ && tar -xzf genetic_maps.b38.tar.gz && cd ../../ && touch .shapeit
 
 clean:
 	rm -rf $(TARGETS) $(TARGETS:=.o) conda/ pangolin/
