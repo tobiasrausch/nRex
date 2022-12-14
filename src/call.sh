@@ -32,9 +32,9 @@ rm ${OUTP}.vcf.gz ${OUTP}.vcf.gz.tbi
 
 # Filtering
 if [[ ${ATYPE} = *"haloplex"* ]]; then
-    bcftools filter -O b -o ${OUTP}.norm.filtered.bcf -e '%QUAL<=20 || %QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2' ${OUTP}.norm.bcf
+    bcftools filter -O b -o ${OUTP}.norm.filtered.bcf -e 'QUAL<=20 || QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2' ${OUTP}.norm.bcf
 else
-    bcftools filter -O b -o ${OUTP}.norm.filtered.bcf -e '%QUAL<=20 || %QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2 || RPR<=2 || RPL<=2' ${OUTP}.norm.bcf
+    bcftools filter -O b -o ${OUTP}.norm.filtered.bcf -e 'QUAL<=20 || QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2 || RPR<=2 || RPL<=2' ${OUTP}.norm.bcf
 fi
 bcftools index ${OUTP}.norm.filtered.bcf
 rm ${OUTP}.norm.bcf ${OUTP}.norm.bcf.csi

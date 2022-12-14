@@ -21,3 +21,7 @@ nRex is a germline & somatic single-nucleotide variant calling pipeline
 ## Running nRex for GRCh38
 
 `./src/nRex.sh <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>`
+
+## Aggregating QC statistics across multiple samples
+
+`./scripts/aggregate.sh table *.qc.summary`

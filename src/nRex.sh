@@ -27,18 +27,24 @@ OUTP=${1}
 FQ1=${2}
 FQ2=${3}
 
-# Trim the FASTQs
-${BASEDIR}/trim.sh ${OUTP} ${FQ1} ${FQ2}
+if [ ! -f ${OUTP}.bam ]
+then
+    # Trim the FASTQs
+    ${BASEDIR}/trim.sh ${OUTP} ${FQ1} ${FQ2}
 
-# Align the adapter-filtered FASTQs
-${BASEDIR}/align.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}_val_1.fq.gz ${OUTP}_val_2.fq.gz
-rm ${OUTP}_val_1.fq.gz ${OUTP}_val_2.fq.gz
+    # Align the adapter-filtered FASTQs
+    ${BASEDIR}/align.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}_val_1.fq.gz ${OUTP}_val_2.fq.gz
+    rm ${OUTP}_val_1.fq.gz ${OUTP}_val_2.fq.gz
+fi
 
 # Call variants
 ${BASEDIR}/call.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 
 # Calculate coverage
 ${BASEDIR}/coverage.sh ${ATYPE} ${GENOME} ${MAP} ${OUTP} ${OUTP}.bam
+
+# QC summary
+python ${BASEDIR}/../scripts/qc.py -p ${OUTP} > ${OUTP}.qc.summary
 
 # Phase variants against 1000 Genomes reference panel
 if [[ ${ATYPE} = *"hg19"* ]]; then
