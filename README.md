@@ -1,6 +1,6 @@
 # nRex
 
-nRex is a germline & somatic single-nucleotide variant calling pipeline
+nRex is a germline & somatic single-nucleotide variant calling pipeline for whole-genome human genomics sequencing data (>=30x).
 
 ## Installing nRex
 
