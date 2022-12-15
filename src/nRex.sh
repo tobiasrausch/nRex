@@ -49,6 +49,12 @@ then
     ${BASEDIR}/filter.sh ${ATYPE} ${GENOME} ${OUTP}
 fi
 
+# Optional: Annotate variants
+if [ -d ${BASEDIR}/../vep_data ]
+then
+    ${BASEDIR}/vep.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+fi
+
 # Structural variants [can be jointly run on multiple BAM files]
 if [ ! -f ${OUTP}.delly.bcf ]
 then
