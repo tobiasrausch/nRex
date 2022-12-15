@@ -36,4 +36,4 @@ and install shapeit (see shapeit documentation)
 
 ## Aggregating QC statistics across multiple samples
 
-`./scripts/aggregate.sh table *.qc.summary`
+`./src/aggregate.sh table *.qc.summary`
