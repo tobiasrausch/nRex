@@ -28,4 +28,4 @@ docker run -v ${BASEDIR}/../vep_data:/opt/vep/.vep ensemblorg/ensembl-vep vep --
 # Convert to BCF
 bcftools view -O b -o ${OUTP}.vep.bcf ${BASEDIR}/../vep_data/user/${OUTP}.out.vcf.gz
 bcftools index ${OUTP}.vep.bcf
-rm /opt/vep/.vep/user/${OUTP}.in.vcf.gz /opt/vep/.vep/user/${OUTP}.out.vcf.gz
+rm -f ${BASEDIR}/../vep_data/user/${OUTP}.in.vcf.gz ${BASEDIR}/../vep_data/user/${OUTP}.out.vcf.gz
