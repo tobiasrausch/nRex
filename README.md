@@ -36,6 +36,8 @@ and install shapeit (see shapeit documentation)
 
 ## Postprocessing the output of the pipeline
 
+A few helper scripts to summarize the output of the various tools.
+
 ### Aggregating QC statistics across multiple samples
 
 `./src/aggregate.sh table *.qc.summary`
