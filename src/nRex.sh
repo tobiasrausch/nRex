@@ -50,9 +50,12 @@ then
 fi
 
 # Optional: Annotate variants
-if [ -d ${BASEDIR}/../vep_data ]
+if [ ! -f ${OUTP}.vep.bcf ]
 then
-    ${BASEDIR}/vep.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+    if [ -d ${BASEDIR}/../vep_data ]
+    then
+	${BASEDIR}/vep.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+    fi
 fi
 
 # Structural variants [can be jointly run on multiple BAM files]
@@ -74,6 +77,6 @@ ${BASEDIR}/qc.sh ${OUTP}
 if [[ ${ATYPE} = *"hg38"* ]]; then
     if [ -f ${BASEDIR}/../shapeit4-4.2.2/bin/shapeit4.2 ]
     then
-	echo ${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+	${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
     fi
 fi
