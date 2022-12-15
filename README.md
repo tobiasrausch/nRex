@@ -34,6 +34,14 @@ and install shapeit (see shapeit documentation)
 
 `./src/nRex.sh <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>`
 
-## Aggregating QC statistics across multiple samples
+## Postprocessing the output of the pipeline
+
+### Aggregating QC statistics across multiple samples
 
 `./src/aggregate.sh table *.qc.summary`
+
+### Summarizing VEP output
+
+To generate a table of annotated variants, you can use
+
+`python3 scripts/vep.py -v sample.vep.bcf`
