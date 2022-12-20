@@ -74,9 +74,12 @@ fi
 ${BASEDIR}/qc.sh ${OUTP}
 
 # Optional: Phasing
-if [[ ${ATYPE} = *"hg38"* ]]; then
-    if [ -f ${BASEDIR}/../shapeit4-4.2.2/bin/shapeit4.2 ]
-    then
-	${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+if [ ! -f ${OUTP}.shapeit.bcf ]
+then
+    if [[ ${ATYPE} = *"hg38"* ]]; then
+	if [ -f ${BASEDIR}/../shapeit4-4.2.2/bin/shapeit4.2 ]
+	then
+	    ${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+	fi
     fi
 fi
