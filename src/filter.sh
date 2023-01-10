@@ -3,7 +3,7 @@
 if [ $# -ne 3 ]
 then
     echo ""
-    echo "Usage: $0 <hg19.wgs|hg19.wes|hg19.haloplex> <genome.fa> <output prefix>"
+    echo "Usage: $0 <hg38.wgs|hg38.wes|hg38.haloplex> <genome.fa> <output prefix>"
     echo ""
     exit -1
 fi

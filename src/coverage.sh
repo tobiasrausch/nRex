@@ -3,7 +3,7 @@
 if [ $# -ne 5 ]
 then
     echo ""
-    echo "Usage: $0 <hg19.wgs|hg19.wes|hg19.haloplex> <genome.fa> <map.fa.gz> <output prefix> <sample1.bam>"
+    echo "Usage: $0 <hg38.wgs|hg38.wes|hg38.haloplex> <genome.fa> <map.fa.gz> <output prefix> <sample1.bam>"
     echo ""
     exit -1
 fi

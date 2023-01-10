@@ -3,7 +3,7 @@
 if [ $# -ne 2 ]
 then
     echo ""
-    echo "Usage: $0 <output prefix> <input.hg19.vcf.gz>"
+    echo "Usage: $0 <output prefix> <input.hg38.vcf.gz>"
     echo ""
     exit -1
 fi
