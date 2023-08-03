@@ -49,13 +49,10 @@ then
     ${BASEDIR}/filter.sh ${ATYPE} ${GENOME} ${OUTP}
 fi
 
-# Optional: Annotate variants
-if [ ! -f ${OUTP}.vep.bcf ]
+# Calculate coverage
+if [ ! -f ${OUTP}.cov.gz ]
 then
-    if [ -d ${BASEDIR}/../vep_data ]
-    then
-	${BASEDIR}/vep.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
-    fi
+    ${BASEDIR}/coverage.sh ${ATYPE} ${GENOME} ${MAP} ${OUTP} ${OUTP}.bam
 fi
 
 # Structural variants [can be jointly run on multiple BAM files]
@@ -64,14 +61,17 @@ then
     ${BASEDIR}/delly.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 fi
 
-# Calculate coverage
-if [ ! -f ${OUTP}.cov.gz ]
-then
-    ${BASEDIR}/coverage.sh ${ATYPE} ${GENOME} ${MAP} ${OUTP} ${OUTP}.bam
-fi
-
 # QC summary
 ${BASEDIR}/qc.sh ${OUTP}
+
+# Optional: Annotate variants
+if [ ! -f ${OUTP}.vep.bcf ]
+then
+    if [ -d ${BASEDIR}/../vep_data ]
+    then
+	${BASEDIR}/vep.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+    fi
+fi
 
 # Optional: Phasing
 if [ ! -f ${OUTP}.shapeit.bcf ]
