@@ -1,10 +1,9 @@
 .check
-.conda
 .mamba
 .tools
 .shapeit
 .vep
-conda/
+mamba/
 genome/
 refpanel/
 refpanelHG38/

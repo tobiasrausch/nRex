@@ -10,7 +10,7 @@ fi
 
 SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
-export PATH=${BASEDIR}/../conda/bin:${PATH}
+export PATH=${BASEDIR}/../mamba/bin:${PATH}
 source activate align
 
 # CMD params
