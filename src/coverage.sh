@@ -26,5 +26,5 @@ if [[ ${ATYPE} = *"wgs"* ]]; then
     WIN=10000
     delly cnv -i ${WIN} -j ${WIN} -w ${WIN} -g ${GENOME} -m ${MAP} -o ${OUTP}.cov.bcf -c ${OUTP}.cov.gz ${BAMFILE}
 else
-    delly cnv -r <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) -n -b <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) -g ${GENOME} -m ${MAP} -o ${OUTP}.cov.bcf -c ${OUTP}.cov.gz ${BAMFILE}
+    delly cnv -r ${BASEDIR}/../genome/${ATYPE}.bed.gz -n -b ${BASEDIR}/../genome/${ATYPE}.bed.gz -g ${GENOME} -m ${MAP} -o ${OUTP}.cov.bcf -c ${OUTP}.cov.gz ${BAMFILE}
 fi
