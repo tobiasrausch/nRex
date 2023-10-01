@@ -19,7 +19,7 @@ GENOME=${2}
 OUTP=${3}
 
 # Normalize VCF
-bcftools norm -O b -o ${OUTP}.norm.bcf -f ${GENOME} -m -both ${OUTP}.vcf.gz
+bcftools norm -O b -o ${OUTP}.norm.bcf -a -f ${GENOME} -m -both ${OUTP}.vcf.gz
 bcftools index ${OUTP}.norm.bcf
 
 # Filtering
