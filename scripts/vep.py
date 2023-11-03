@@ -37,18 +37,34 @@ selected = ['missense_variant', 'splice_acceptor_variant', 'splice_donor_variant
 # VCF/BCF parsing
 varstore = collections.defaultdict(collections.defaultdict)
 vcf = cyvcf2.VCF(args.variants)
+amPresent = False
 for header in vcf.header_iter():
     if header['HeaderType'] == "INFO":
         if header['ID'] == "CSQ":
             vepcols = header['Description'].replace('Consequence annotations from Ensembl VEP. Format: "', '')[:-1].split('|')
+        if header['ID'] == "AMCLASS":
+            amPresent = True
             
 addr = dict()
 for idx, val in enumerate(vepcols):
     addr[val] = idx
 
-print("chromosome", "position", "REF", "ALT", "carrier", '\t'.join(descols), sep='\t')
+# Header
+if amPresent:
+    print("chromosome", "position", "REF", "ALT", "qual", "carrier", "ampath", "amclass", '\t'.join(descols), sep='\t')
+else:
+    print("chromosome", "position", "REF", "ALT", "qual", "carrier", '\t'.join(descols), sep='\t')
+
+# Parse VCF
 for record in vcf:
+    if (record.FILTER is None) or (record.FILTER == ".") or (record.FILTER == "PASS"):
+        pass
+    else:
+        continue
     csq = record.INFO.get('CSQ')
+    if amPresent:
+        amclass = record.INFO.get('AMCLASS')
+        ampath = record.INFO.get('AMPATH')
     if csq is None:
         print(record.CHROM, record.POS, record.REF, ','.join(record.ALT), "unknown_variant", sep='\t')
         continue
@@ -69,15 +85,34 @@ for record in vcf:
             #    print(a, b)
             carrierStr=""
             validSite=False
-            for spl, gt, ao, ro in zip(vcf.samples, record.gt_types, record.format('AO'), record.format('RO')):
-                # gt_types is array of 0,1,2,3==HOM_REF, HET, UNKNOWN, HOM_ALT
-                if (gt != 2):
-                    if (ao[0] + ro[0]) > 0:
-                        af = (float) (ao[0]) / (float) (ao[0] + ro[0])
-                        if (ao[0] >= minao) and (af > vafth):
-                            validSite = True
-                        if (ao[0] >= minao) and (af > reportth):
-                            carrierStr += spl + "(VAF=" + str(round(af,2)) + "),"
+            aoPresent=True
+            try:
+                ao = record.format('AO')
+            except KeyError:
+                aoPresent=False
+            if aoPresent:
+                for spl, gt, ao, ro in zip(vcf.samples, record.gt_types, record.format('AO'), record.format('RO')):
+                    # gt_types is array of 0,1,2,3==HOM_REF, HET, UNKNOWN, HOM_ALT
+                    if (gt != 2):
+                        if (ao[0] + ro[0]) > 0:
+                            af = (float) (ao[0]) / (float) (ao[0] + ro[0])
+                            if (ao[0] >= minao) and (af > vafth):
+                                validSite = True
+                            if (ao[0] >= minao) and (af > reportth):
+                                carrierStr += spl + "(VAF=" + str(round(af,2)) + "),"
+            else:
+                for spl, gt, dp, ad in zip(vcf.samples, record.gt_types, record.format('DP'), record.format('AD')):
+                    # gt_types is array of 0,1,2,3==HOM_REF, HET, UNKNOWN, HOM_ALT
+                    if (gt != 2):
+                        if dp > 0:
+                            af = (float) (ad) / (float) (dp)
+                            if (ad >= minao) and (af > vafth):
+                                validSite = True
+                            if (ad >= minao) and (af > reportth):
+                                carrierStr += spl + "(VAF=" + str(round(af,2)) + "),"
             fields[addr['EXON']] = fields[addr['EXON']].replace('/', ';')
             if validSite:
-                print(record.CHROM, record.POS, record.REF, ','.join(record.ALT), carrierStr, '\t'.join([fields[addr[cname]] for cname in descols]), sep='\t')
+                if amPresent:
+                    print(record.CHROM, record.POS, record.REF, ','.join(record.ALT), record.QUAL, carrierStr, ampath, amclass, '\t'.join([fields[addr[cname]] for cname in descols]), sep='\t')
+                else:
+                    print(record.CHROM, record.POS, record.REF, ','.join(record.ALT), record.QUAL, carrierStr, '\t'.join([fields[addr[cname]] for cname in descols]), sep='\t')
