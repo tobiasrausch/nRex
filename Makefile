@@ -22,5 +22,5 @@ all: ${TARGETS}
 	mkdir vep_data && chmod a+rwx vep_data && docker run -t -i -v ${PBASE}/vep_data:/opt/vep/.vep ensemblorg/ensembl-vep INSTALL.pl -a cfp -s homo_sapiens -y GRCh38 -g all && touch .vep
 
 clean:
-	rm -rf $(TARGETS) $(TARGETS:=.o) conda/ pangolin/
+	rm -rf $(TARGETS) $(TARGETS:=.o) conda/
 
