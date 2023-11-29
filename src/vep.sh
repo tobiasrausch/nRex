@@ -11,7 +11,6 @@ fi
 SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 export PATH=${BASEDIR}/../mamba/bin:${PATH}
-source activate align
 
 OUTP=${1}
 INVCF=${2}

@@ -12,8 +12,6 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 export PATH=${BASEDIR}/../mamba/bin:${PATH}
 
-source activate align
-
 # CMD parameters
 ATYPE=${1}
 GENOME=${2}
