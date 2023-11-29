@@ -12,6 +12,7 @@ import cyvcf2
 parser = argparse.ArgumentParser(description='Create variant table')
 parser.add_argument('-v', '--variants', metavar='sample.vcf.gz', required=True, dest='variants', help='VCF file (required)')
 parser.add_argument('-f', '--vaf', metavar='0.15', required=False, dest='vaf', help='min. VAF')
+parser.add_argument('-q', '--qual', metavar='20', required=False, dest='qual', help='min. quality')
 parser.add_argument('-r', '--report', metavar='0.05', required=False, dest='report', help='min. reporting VAF')
 parser.add_argument('-a', '--ao', metavar='2', required=False, dest='minao', help='min. alternative observation')
 parser.add_argument('-n', '--no-consequence-selection', dest='nocons', action='store_false')
@@ -24,6 +25,9 @@ if args.minao:
 vafth = 0.15
 if args.vaf:
     vafth = (float) (args.vaf)
+qual = 20
+if args.qual:
+    qual = (int) (args.qual)
 reportth = 0.05
 if args.report:
     reportth = (float) (args.report)
@@ -60,6 +64,8 @@ for record in vcf:
     if (record.FILTER is None) or (record.FILTER == ".") or (record.FILTER == "PASS"):
         pass
     else:
+        continue
+    if record.QUAL < qual:
         continue
     csq = record.INFO.get('CSQ')
     if amPresent:
