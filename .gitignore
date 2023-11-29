@@ -5,6 +5,7 @@
 .vep
 mamba/
 genome/
+genomeLR/
 refpanel/
 refpanelHG38/
 shapeit*/
