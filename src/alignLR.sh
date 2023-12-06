@@ -3,7 +3,7 @@
 if [ $# -ne 4 ]
 then
     echo ""
-    echo "Usage: $0 <hg38.wgs|hg38.wes|hg38.haloplex> <genome.fa> <output prefix> <sample1.fq.gz>"
+    echo "Usage: $0 <hg38.wgs|hg38.wes> <genome.fa> <output prefix> <sample1.fq.gz>"
     echo ""
     exit -1
 fi

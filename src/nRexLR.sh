@@ -20,9 +20,9 @@ BASEDIR=$(dirname "$SCRIPT")
 
 # CMD parameters
 VERSION=38
-ATYPE=hg${VERSION}.wgs    # [hg38.wgs|hg38.wes|hg38.haloplex]
+ATYPE=hg${VERSION}.wgs    # [hg38.wgs|hg38.wes]
 GENOME=${BASEDIR}/../genomeLR/hg${VERSION}.fa
-MAP=${BASEDIR}/../genome/Homo_sapiens.GRCh${VERSION}.dna.primary_assembly.fa.r101.s501.blacklist.gz
+MAP=${BASEDIR}/../genomeLR/Homo_sapiens.GRCh${VERSION}.dna.primary_assembly.fa.r101.s501.blacklist.gz
 OUTP=${1}
 FQ=${2}
 

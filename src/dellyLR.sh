@@ -16,8 +16,12 @@ export PATH=${BASEDIR}/../mamba/bin:${PATH}
 ATYPE=${1}
 GENOME=${2}
 OUTP=${3}
-EXCL=${BASEDIR}/../genome/human.hg38.excl.tsv
 shift 3
 
 # Delly
-delly call -g ${GENOME} -x ${EXCL} -o ${OUTP}.delly.bcf $@
+delly lr -g ${GENOME} -o ${OUTP}.delly.bcf $@
+
+# Sniffles
+sniffles --reference ${GENOME} --input ${@} --reference ${HG} --vcf ${OUTP}.sniffles.vcf
+bgzip ${OUTP}.sniffles.vcf
+tabix ${OUTP}.sniffles.vcf.gz

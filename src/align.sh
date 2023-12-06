@@ -3,7 +3,7 @@
 if [ $# -ne 5 ]
 then
     echo ""
-    echo "Usage: $0 <hg38.wgs|hg38.wes|hg38.haloplex> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>"
+    echo "Usage: $0 <hg38.wgs|hg38.wes> <genome.fa> <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>"
     echo ""
     exit -1
 fi
@@ -25,14 +25,9 @@ bwa mem -R "@RG\tID:${OUTP}\tSM:${OUTP}" -t ${THREADS} ${GENOME} ${FQ1} ${FQ2} |
 samtools index ${OUTP}.srt.bam
 
 # Mark duplicates
-if [[ ${ATYPE} = *"haloplex"* ]]; then
-    mv ${OUTP}.srt.bam ${OUTP}.bam
-    mv ${OUTP}.srt.bam.bai ${OUTP}.bam.bai
-else
-    samtools markdup ${OUTP}.srt.bam ${OUTP}.bam
-    samtools index ${OUTP}.bam
-    rm ${OUTP}.srt.bam ${OUTP}.srt.bam.bai
-fi
+samtools markdup ${OUTP}.srt.bam ${OUTP}.bam
+samtools index ${OUTP}.bam
+rm ${OUTP}.srt.bam ${OUTP}.srt.bam.bai
 
 # Run stats using unfiltered BAM
 samtools idxstats -@ ${THREADS} ${OUTP}.bam > ${OUTP}.idxstats
