@@ -33,7 +33,7 @@ do
 	bcftools index ${OUTP}.chr${CHR}.in.bcf
 
 	echo "Shapeit4 phasing chr${CHR}"
-	${BASEDIR}/../shapeit4-4.2.2/bin/shapeit4.2 --input ${OUTP}.chr${CHR}.in.bcf --thread ${THREADS} --map ${BASEDIR}/../shapeit4-4.2.2/maps/chr${CHR}.b38.gmap.gz --region chr${CHR} --reference ${BASEDIR}/../refpanel/chr${CHR}.bcf --output ${OUTP}.chr${CHR}.shapeit.bcf
+	shapeit4 --input ${OUTP}.chr${CHR}.in.bcf --thread ${THREADS} --map ${BASEDIR}/../shapeit4-4.2.2/maps/chr${CHR}.b38.gmap.gz --region chr${CHR} --reference ${BASEDIR}/../refpanel/chr${CHR}.bcf --output ${OUTP}.chr${CHR}.shapeit.bcf
 	bcftools index ${OUTP}.chr${CHR}.shapeit.bcf
 	rm ${OUTP}.chr${CHR}.in.bcf ${OUTP}.chr${CHR}.in.bcf.csi
 	FILES=${FILES}" ${OUTP}.chr${CHR}.shapeit.bcf"
