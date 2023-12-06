@@ -20,7 +20,7 @@ BASEDIR=$(dirname "$SCRIPT")
 
 # CMD parameters
 VERSION=38
-ATYPE=hg${VERSION}.wgs    # [hg38.wgs|hg38.wes|hg38.haloplex]
+ATYPE=hg${VERSION}.wgs    # [hg38.wgs|hg38.wes]
 GENOME=${BASEDIR}/../genome/hg${VERSION}.fa
 MAP=${BASEDIR}/../genome/Homo_sapiens.GRCh${VERSION}.dna.primary_assembly.fa.r101.s501.blacklist.gz
 OUTP=${1}
@@ -37,22 +37,28 @@ then
     rm ${OUTP}_val_1.fq.gz ${OUTP}_val_2.fq.gz
 fi
 
+# Read-depth
+if [ ! -f ${OUTP}.cov.gz ]
+then
+    ${BASEDIR}/coverage.sh ${ATYPE} ${GENOME} ${MAP} ${OUTP} ${OUTP}.bam
+fi
+
 # Call variants [can be jointly run on multiple BAM files]
 if [ ! -f ${OUTP}.vcf.gz ]
 then
     ${BASEDIR}/call.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 fi
 
-# Filter variants
-if [ ! -f ${OUTP}.${ATYPE}.vcf.gz ]
+# Phase variants
+if [ ! -f ${OUTP}.shapeit.bcf ]
 then
-    ${BASEDIR}/filter.sh ${ATYPE} ${GENOME} ${OUTP}
-fi
-
-# Calculate coverage
-if [ ! -f ${OUTP}.cov.gz ]
-then
-    ${BASEDIR}/coverage.sh ${ATYPE} ${GENOME} ${MAP} ${OUTP} ${OUTP}.bam
+    if [[ ${ATYPE} = *"hg38"* ]]; then
+	if [ -f ${BASEDIR}/../maps/chr21.b38.gmap.gz ]; then
+	    if [ -f ${BASEDIR}/../refpanel/chr21.bcf ]; then
+		${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
+	    fi
+	fi
+    fi
 fi
 
 # Structural variants [can be jointly run on multiple BAM files]
@@ -73,13 +79,3 @@ then
     fi
 fi
 
-# Optional: Phasing
-if [ ! -f ${OUTP}.shapeit.bcf ]
-then
-    if [[ ${ATYPE} = *"hg38"* ]]; then
-	if [ -f ${BASEDIR}/../shapeit4-4.2.2/bin/shapeit4.2 ]
-	then
-	    ${BASEDIR}/phase.sh ${OUTP} ${OUTP}.${ATYPE}.vcf.gz
-	fi
-    fi
-fi
