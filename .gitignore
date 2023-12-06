@@ -7,7 +7,6 @@ mamba/
 genome/
 genomeLR/
 refpanel/
-refpanelHG38/
-shapeit*/
+maps/
 vep_data/
 *~
