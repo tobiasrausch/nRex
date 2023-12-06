@@ -34,7 +34,7 @@ There is a pipeline for short- and long-reads. For short-reads:
 
 and for long-reads:
 
-`./src/nRexLR.sh <output prefix> <sample1.read1.fq.gz> <sample1.read2.fq.gz>`
+`./src/nRexLR.sh <output prefix> <sample.fq.gz>`
 
 ## Postprocessing the output of the pipeline
 
