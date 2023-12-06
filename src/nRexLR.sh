@@ -40,5 +40,5 @@ fi
 # Structural variants [can be jointly run on multiple BAM files]
 if [ ! -f ${OUTP}.delly.bcf ]
 then
-    ${BASEDIR}/delly.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
+    ${BASEDIR}/dellyLR.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 fi
