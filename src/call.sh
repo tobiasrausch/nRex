@@ -27,7 +27,6 @@ tabix ${OUTP}.vcf.gz
 # Normalize VCF
 bcftools norm -O b -o ${OUTP}.norm.bcf -a -f ${GENOME} -m -both ${OUTP}.vcf.gz
 bcftools index ${OUTP}.norm.bcf
-rm ${OUTP}.vcf.gz ${OUTP}.vcf.gz.tbi
 
 # Filtering
 bcftools filter -O b -o ${OUTP}.norm.filtered.bcf -e 'QUAL<=20 || QUAL/INFO/AO<=2 || SAF<=2 || SAR<=2 || RPR<=2 || RPL<=2' ${OUTP}.norm.bcf

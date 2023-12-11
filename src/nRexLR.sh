@@ -26,10 +26,21 @@ MAP=${BASEDIR}/../genomeLR/Homo_sapiens.GRCh${VERSION}.dna.primary_assembly.fa.r
 OUTP=${1}
 FQ=${2}
 
+# Alignment
 if [ ! -f ${OUTP}.bam ]
 then
     ${BASEDIR}/alignLR.sh ${ATYPE} ${GENOME} ${OUTP} ${FQ}
 fi
+
+# SNP calling (requires singularity)
+if command -v singularity &> /dev/null;
+then
+    if [ ! -f ${OUTP}.vcf.gz ]
+    then
+	${BASEDIR}/callLR.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
+    fi
+fi
+
 
 # Calculate coverage
 if [ ! -f ${OUTP}.cov.gz ]
