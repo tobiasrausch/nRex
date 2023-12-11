@@ -10,7 +10,7 @@ then
     echo "Contact: Tobias Rausch (rausch@embl.de)"
     echo "**********************************************************************"
     echo ""
-    echo "Usage: $0 <output prefix> <sample.fq.gz>"
+    echo "Usage: $0 <output prefix> [sample.fq.gz|sample.unaligned.bam]"
     echo ""
     exit -1
 fi

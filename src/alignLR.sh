@@ -19,9 +19,25 @@ OUTP=${3}
 FQ=${4}
 THREADS=8
 
-# BWA alignment
-minimap2 -t ${THREADS} -a -x map-ont -L ${GENOME} ${FQ} | samtools sort -o ${OUTP}.bam
-samtools index ${OUTP}.bam
+# BAM input?
+samtools quickcheck ${FQ}
+if [ $? -eq 0 ]
+then
+    # BAM input
+    samtools fastq -@ ${THREADS} ${FQ} | gzip -c > ${OUTP}.fq.gz
+    FQ=${OUTP}.fq.gz
+    
+    # Minimap2 alignment
+    minimap2 -t ${THREADS} -a -x map-ont -L ${GENOME} ${FQ} | samtools sort -o ${OUTP}.bam
+    samtools index ${OUTP}.bam
+
+    # Clean-up
+    rm ${OUTP}.fq.gz
+else
+    # Minimap2 alignment
+    minimap2 -t ${THREADS} -a -x map-ont -L ${GENOME} ${FQ} | samtools sort -o ${OUTP}.bam
+    samtools index ${OUTP}.bam
+fi
 
 # Run stats using unfiltered BAM
 samtools idxstats -@ ${THREADS} ${OUTP}.bam > ${OUTP}.idxstats
