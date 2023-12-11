@@ -78,8 +78,11 @@ for record in vcf:
     for tr in transcripts:
         fields = tr.split('|')
         consout = False
+        pathogenic = False
+        if fields[addr['CLIN_SIG']] == "pathogenic":
+            pathogenic = True
         for constype in fields[addr['Consequence']].split('&'):
-            if (not args.nocons) or (constype in selected):
+            if (not args.nocons) or (constype in selected) or (pathogenic):
                 consout = True
                 break
         if (consout) and (fields[addr['CANONICAL']] == "YES") and (fields[addr['BIOTYPE']] == "protein_coding"):
