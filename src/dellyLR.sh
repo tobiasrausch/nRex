@@ -16,12 +16,13 @@ export PATH=${BASEDIR}/../mamba/bin:${PATH}
 ATYPE=${1}
 GENOME=${2}
 OUTP=${3}
+THREADS=8
 shift 3
 
 # Delly
 delly lr -g ${GENOME} -o ${OUTP}.delly.bcf $@
 
 # Sniffles
-sniffles --reference ${GENOME} --input ${@} --reference ${HG} --vcf ${OUTP}.sniffles.vcf
+sniffles -t ${THREADS} --reference ${GENOME} --input ${@} --vcf ${OUTP}.sniffles.vcf
 bgzip ${OUTP}.sniffles.vcf
 tabix ${OUTP}.sniffles.vcf.gz
