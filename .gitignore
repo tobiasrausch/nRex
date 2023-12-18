@@ -8,6 +8,7 @@ mamba/
 genome/
 genomeLR/
 refpanel/
+models/
 maps/
 vep_data/
 *~
