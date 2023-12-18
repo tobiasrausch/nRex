@@ -1,9 +1,9 @@
 #!/bin/bash
 
-if [ $# -ne 4 ]
+if [ $# -lt 4 ]
 then
     echo ""
-    echo "Usage: $0 <hg38.wgs|hg38.wes> <genome.fa> <output prefix> <sample.bam"
+    echo "Usage: $0 <hg38.wgs|hg38.wes> <genome.fa> <output prefix> <sample1.bam> <sample2.bam> ... <sampleN.bam>"
     echo ""
     exit -1
 fi
@@ -16,31 +16,26 @@ export PATH=${BASEDIR}/../mamba/bin:${PATH}
 ATYPE=${1}
 GENOME=${2}
 OUTP=${3}
-BAM=${4}
+shift 3
 THREADS=8
 
-# Pull DeepVariant image
-BIN_VERSION=1.6.0
-INPUT_DIR="."
-OUTPUT_DIR="."
-singularity pull docker://google/deepvariant:"${BIN_VERSION}"
-
-# Run the container
-cp ${GENOME} ${OUTP}.genome.fa
-cp ${GENOME}.fai ${OUTP}.genome.fa.fai
-singularity run --bind $(pwd) -B /usr/lib/locale/:/usr/lib/locale/ docker://google/deepvariant:"${BIN_VERSION}" /opt/deepvariant/bin/run_deepvariant --model_type=ONT_R104 --ref=${OUTP}.genome.fa --reads=${BAM} --output_vcf=${OUTP}.vcf.gz --output_gvcf=${OUTP}.g.vcf.gz --num_shards=${THREADS}
-rm ${OUTP}.genome.fa ${OUTP}.genome.fa.fai
+source activate clair3
+run_clair3.sh --bam_fn=${@} --ref_fn=${GENOME} --threads=${THREADS} --platform="ont" --model_path=${BASEDIR}/../models/r1041_e82_260bps_sup_v400 --output=${OUTP}_clair3
+cp ${OUTP}_clair3/merge_output.vcf.gz ${OUTP}.vcf.gz
+cp ${OUTP}_clair3/merge_output.vcf.gz.tbi ${OUTP}.vcf.gz.tbi
+rm -rf ${OUTP}_clair3/
+source deactivate
 
 # Normalize VCF
 bcftools norm -O b -o ${OUTP}.norm.bcf -a -f ${GENOME} -m -both ${OUTP}.vcf.gz
 bcftools index ${OUTP}.norm.bcf
 
 # Filtering
-bcftools filter -O b -o ${OUTP}.norm.filtered.bcf -e 'QUAL<=10' ${OUTP}.norm.bcf
+bcftools filter -O b -o ${OUTP}.norm.filtered.bcf -e 'QUAL<=5' ${OUTP}.norm.bcf
 bcftools index ${OUTP}.norm.filtered.bcf
 rm ${OUTP}.norm.bcf ${OUTP}.norm.bcf.csi
 
 # Subset to target regions
-bcftools view -T <(zcat ${BASEDIR}/../genomeLR/${ATYPE}.bed.gz) ${OUTP}.norm.filtered.bcf | bgzip > ${OUTP}.${ATYPE}.vcf.gz
+bcftools view -T <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) ${OUTP}.norm.filtered.bcf | bgzip > ${OUTP}.${ATYPE}.vcf.gz
 tabix ${OUTP}.${ATYPE}.vcf.gz
 rm ${OUTP}.norm.filtered.bcf ${OUTP}.norm.filtered.bcf.csi

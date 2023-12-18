@@ -3,6 +3,7 @@
 .tools
 .shapeit
 .vep
+.clair3
 mamba/
 genome/
 genomeLR/

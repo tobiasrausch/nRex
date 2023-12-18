@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 # Targets
-TARGETS = .mamba .tools .check .vep
+TARGETS = .mamba .tools .clair3 .check .vep
 PBASE=$(shell pwd)
 
 all: ${TARGETS}
@@ -14,6 +14,9 @@ all: ${TARGETS}
 
 .check: .mamba .tools
 	export PATH=${PBASE}/mamba/bin:${PATH} && samtools --version && bcftools --version && bedtools --version && bgzip --version && tabix --version && trim_galore --version && delly --version && sniffles --version && NanoPlot --version && echo "Installation complete!" && touch .check
+
+.clair3: .mamba .tools
+	export PATH=${PBASE}/mamba/bin:${PATH} && mamba create -y -n clair3 -c conda-forge -c bioconda clair3 python=3.9.0 && touch .clair3
 
 .vep: .mamba .tools
 	mkdir vep_data && chmod a+rwx vep_data && docker run -t -i -v ${PBASE}/vep_data:/opt/vep/.vep ensemblorg/ensembl-vep INSTALL.pl -a cfp -s homo_sapiens -y GRCh38 -g all && touch .vep
