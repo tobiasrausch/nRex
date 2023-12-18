@@ -32,15 +32,11 @@ then
     ${BASEDIR}/alignLR.sh ${ATYPE} ${GENOME} ${OUTP} ${FQ}
 fi
 
-# SNP calling (requires singularity)
-if command -v singularity &> /dev/null;
+# SNP calling
+if [ ! -f ${OUTP}.vcf.gz ]
 then
-    if [ ! -f ${OUTP}.vcf.gz ]
-    then
-	${BASEDIR}/callLR.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
-    fi
+    ${BASEDIR}/callLR.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 fi
-
 
 # Calculate coverage
 if [ ! -f ${OUTP}.cov.gz ]
