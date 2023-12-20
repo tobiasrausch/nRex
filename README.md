@@ -1,6 +1,6 @@
 # nRex
 
-nRex is a germline & somatic single-nucleotide variant calling pipeline for whole-genome human genomics sequencing data (>=30x).
+nRex is a set of script to call germline and somatic single-nucleotide variants, short indels and structural variants. The workflow is primarily for human whole-genome sequencing data (>=30x) using short or long-reads.
 
 ## Installing nRex
 
