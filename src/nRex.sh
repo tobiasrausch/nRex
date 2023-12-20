@@ -6,7 +6,7 @@ then
     echo "nRex: Single-nucleotide variant calling."
     echo "This program comes with ABSOLUTELY NO WARRANTY."
     echo ""
-    echo "nRex (Version: 0.1.8)"
+    echo "nRex (Version: 0.2.1)"
     echo "Contact: Tobias Rausch (rausch@embl.de)"
     echo "**********************************************************************"
     echo ""
