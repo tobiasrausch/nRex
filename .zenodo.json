@@ -1,0 +1,22 @@
+{
+  "creators": [
+    {
+      "orcid": "0000-0001-5773-5620",
+      "affiliation": "European Molecular Biology Laboratory (EMBL)",
+      "name": "Rausch, Tobias"
+    }
+  ],
+  "title": "nRex: Germline and somatic SNV, InDel and SV discovery workflow.",
+  "upload_type": "software",
+  "access_right": "open",
+  "description": "<a href=\"https://github.com/tobiasrausch/nRex\">nRex</a> is a set of scripts to call germline and somatic single-nucleotide variants, short indels and structural variants. The workflow is primarily for human whole-genome sequencing data (>=30x) using short or long-reads.",
+  "keywords": [
+    "somatic-variants",
+    "sequencing",
+    "mutations",
+    "alignment",
+    "germline",
+    "structural-variation",
+    "genomics"
+  ]
+}
