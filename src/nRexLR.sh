@@ -33,7 +33,7 @@ then
 fi
 
 # SNP calling
-if [ ! -f ${OUTP}.vcf.gz ]
+if [ ! -f ${OUTP}.${ATYPE}.vcf.gz ]
 then
     ${BASEDIR}/callLR.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 fi
