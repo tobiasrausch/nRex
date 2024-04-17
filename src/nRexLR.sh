@@ -32,6 +32,12 @@ then
     ${BASEDIR}/alignLR.sh ${ATYPE} ${GENOME} ${OUTP} ${FQ}
 fi
 
+# Alignment statistics
+if [ ! -f ${OUTP}.alfred.tsv.gz ]
+then
+    ${BASEDIR}/statsLR.sh ${ATYPE} ${GENOME} ${OUTP}
+fi
+
 # SNP calling
 if [ ! -f ${OUTP}.${ATYPE}.vcf.gz ]
 then
