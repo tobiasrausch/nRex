@@ -38,13 +38,3 @@ else
     minimap2 -t ${THREADS} -a -x map-ont -L ${GENOME} ${FQ} | samtools sort -o ${OUTP}.bam
     samtools index ${OUTP}.bam
 fi
-
-# Run stats using unfiltered BAM
-samtools idxstats -@ ${THREADS} ${OUTP}.bam > ${OUTP}.idxstats
-samtools flagstat -@ ${THREADS} ${OUTP}.bam > ${OUTP}.flagstat
-
-# Run alfred for BAM statistics
-alfred qc -b ${BASEDIR}/../genome/${ATYPE}.bed.gz -r ${GENOME} -j ${OUTP}.alfred.json.gz -o ${OUTP}.alfred.tsv.gz ${OUTP}.bam
-
-# NanoPlot
-NanoPlot -t ${THREADS} --bam ${OUTP}.bam -o ${OUTP}
