@@ -67,4 +67,3 @@ if [ ! -f ${OUTP}.delly.bcf ]
 then
     ${BASEDIR}/dellyLR.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.bam
 fi
-

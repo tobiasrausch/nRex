@@ -19,7 +19,7 @@ GENOME=${2}
 BAM=${3}
 
 # Annotate common SNPs
-bcftools mpileup -a AD -B -Q 0 -q 1 -I -f ${GENOME} ${BAM} | bcftools call -P 0.01 -mv -V indels - | bcftools norm -f ${GENOME} -m -both -  | bcftools filter -O b -o ${OUTP}.tmp.bcf -i 'DP>=5 && AD[:1]>=2' -
+bcftools mpileup --ignore-RG -a AD -B -Q 0 -q 1 -I -f ${GENOME} ${BAM} | bcftools call -P 0.01 -mv -V indels - | bcftools norm -f ${GENOME} -m -both -  | bcftools filter -O b -o ${OUTP}.tmp.bcf -i 'DP>=5 && AD[:1]>=2' -
 bcftools index ${OUTP}.tmp.bcf
 bcftools isec -O b -o ${OUTP}.common.bcf -n =2 -w 1 ${OUTP}.tmp.bcf ${BASEDIR}/../genomeLR/common_sites.vcf.gz
 bcftools index ${OUTP}.common.bcf
