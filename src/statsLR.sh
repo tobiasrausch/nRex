@@ -26,7 +26,7 @@ then
     samtools flagstat -@ ${THREADS} ${OUTP}.bam > ${OUTP}.flagstat
     
     # Run alfred for BAM statistics
-    alfred qc -b ${BASEDIR}/../genome/${ATYPE}.bed.gz -r ${GENOME} -j ${OUTP}.alfred.json.gz -o ${OUTP}.alfred.tsv.gz ${OUTP}.bam
+    alfred qc -i -b ${BASEDIR}/../genome/${ATYPE}.bed.gz -r ${GENOME} -j ${OUTP}.alfred.json.gz -o ${OUTP}.alfred.tsv.gz ${OUTP}.bam
 
     # NanoPlot
     NanoPlot -t ${THREADS} --bam ${OUTP}.bam -o ${OUTP}
