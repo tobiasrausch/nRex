@@ -20,11 +20,24 @@ shift 3
 THREADS=8
 
 source activate clair3
-run_clair3.sh --bam_fn=${@} --ref_fn=${GENOME} --threads=${THREADS} --platform="ont" --model_path=${BASEDIR}/../models/r1041_e82_260bps_sup_v400 --output=${OUTP}_clair3
-cp ${OUTP}_clair3/merge_output.vcf.gz ${OUTP}.vcf.gz
-cp ${OUTP}_clair3/merge_output.vcf.gz.tbi ${OUTP}.vcf.gz.tbi
+run_clair3.sh --bam_fn=${@} --ref_fn=${GENOME} --threads=${THREADS} --platform="ont" --model_path=${BASEDIR}/../models/r1041_e82_260bps_sup_v400 --output=${OUTP}_clair3 --use_whatshap_for_final_output_haplotagging --use_whatshap_for_final_output_phasing --enable_phasing
+if [ -f ${OUTP}_clair3/phased_merge_output.vcf.gz ]
+then
+    cp ${OUTP}_clair3/phased_merge_output.vcf.gz ${OUTP}.vcf.gz
+    cp ${OUTP}_clair3/phased_merge_output.vcf.gz.tbi ${OUTP}.vcf.gz.tbi
+    cp ${OUTP}_clair3/phased_output.bam ${OUTP}.haplotagged.bam
+else
+    cp ${OUTP}_clair3/merge_output.vcf.gz ${OUTP}.vcf.gz
+    cp ${OUTP}_clair3/merge_output.vcf.gz.tbi ${OUTP}.vcf.gz.tbi
+fi
 rm -rf ${OUTP}_clair3/
 source deactivate
+
+# Index haplotagged BAM
+if [ -f ${OUTP}.haplotagged.bam ]
+then
+    samtools index ${OUTP}.haplotagged.bam
+fi
 
 # Normalize VCF
 bcftools norm -O b -o ${OUTP}.norm.bcf -a -f ${GENOME} -m -both ${OUTP}.vcf.gz
