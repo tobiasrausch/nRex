@@ -21,4 +21,4 @@ BAM=${4}
 
 # Haplotag reads
 whatshap haplotag -o ${OUTP}.haplotagged.bam --reference ${GENOME} --ignore-read-groups --tag-supplementary --skip-missing-contigs ${VCF} ${BAM}
-
+samtools index ${OUTP}.haplotagged.bam
