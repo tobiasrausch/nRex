@@ -62,6 +62,12 @@ then
     fi
 fi
 
+# Haplotag BAM (if not done yet)
+if [ ! -f ${ID}.haplotagged.bam ]
+then
+    ${BASEDIR}/haplotagLR.sh ${OUTP} ${GENOME} ${OUTP}.shapeit.bcf ${OUTP}.bam
+fi
+
 # Structural variants [can be jointly run on multiple BAM files]
 if [ ! -f ${OUTP}.delly.bcf ]
 then
