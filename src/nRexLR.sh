@@ -63,7 +63,7 @@ then
 fi
 
 # Haplotag BAM (if not done yet)
-if [ ! -f ${ID}.haplotagged.bam ]
+if [ ! -f ${OUTP}.haplotagged.bam ]
 then
     ${BASEDIR}/haplotagLR.sh ${OUTP} ${GENOME} ${OUTP}.shapeit.bcf ${OUTP}.bam
 fi

@@ -19,6 +19,11 @@ GENOME=${2}
 VCF=${3}
 BAM=${4}
 
+# Generate phased blocks
+whatshap phase --ignore-read-groups --reference ${GENOME} ${VCF} ${BAM} -o ${OUTP}.whatshap.vcf
+bgzip ${OUTP}.whatshap.vcf
+tabix ${OUTP}.whatshap.vcf.gz
+
 # Haplotag reads
-whatshap haplotag -o ${OUTP}.haplotagged.bam --reference ${GENOME} --ignore-read-groups --tag-supplementary --skip-missing-contigs ${VCF} ${BAM}
+whatshap haplotag -o ${OUTP}.haplotagged.bam --reference ${GENOME} --ignore-read-groups --tag-supplementary --skip-missing-contigs ${OUTP}.whatshap.vcf.gz ${BAM}
 samtools index ${OUTP}.haplotagged.bam
