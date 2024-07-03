@@ -50,22 +50,10 @@ then
     ${BASEDIR}/coverageLR.sh ${ATYPE} ${GENOME} ${MAP} ${OUTP} ${OUTP}.bam
 fi
 
-# Phase common SNPs
-if [ ! -f ${OUTP}.shapeit.bcf ]
-then
-    if [[ ${ATYPE} = *"hg38"* ]]; then
-	if [ -f ${BASEDIR}/../maps/chr21.b38.gmap.gz ]; then
-	    if [ -f ${BASEDIR}/../refpanel/chr21.bcf ]; then
-		${BASEDIR}/phaseLR.sh ${OUTP} ${GENOME} ${OUTP}.bam
-	    fi
-	fi
-    fi
-fi
-
 # Haplotag BAM (if not done yet)
 if [ ! -f ${OUTP}.haplotagged.bam ]
 then
-    ${BASEDIR}/haplotagLR.sh ${OUTP} ${GENOME} ${OUTP}.shapeit.bcf ${OUTP}.bam
+    ${BASEDIR}/haplotagLR.sh ${OUTP} ${GENOME} ${OUTP}.bam
 fi
 
 # Structural variants [can be jointly run on multiple BAM files]
