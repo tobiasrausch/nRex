@@ -24,5 +24,4 @@ fastqc -t ${THREADS} -o fastqc_${OUTP}/ ${FQ1}
 fastqc -t ${THREADS} -o fastqc_${OUTP}/ ${FQ2}
 
 # Adapter trimming
-#trim_galore --paired --basename ${OUTP} ${FQ1} ${FQ2}
 trim_galore --cores ${THREADS} --paired --2colour 20 --basename ${OUTP} ${FQ1} ${FQ2}
