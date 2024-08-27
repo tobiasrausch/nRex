@@ -10,10 +10,10 @@ all: ${TARGETS}
 	curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Mambaforge-$(shell uname)-$(shell uname -m).sh" && bash Mambaforge-$(shell uname)-$(shell uname -m).sh -b -p mamba && rm "Mambaforge-$(shell uname)-$(shell uname -m).sh" && touch .mamba
 
 .tools: .mamba
-	export PATH=${PBASE}/mamba/bin:${PATH} && mamba install -y --override-channels -c conda-forge -c bioconda samtools bcftools bedtools htslib bwa trim-galore fastqc delly alfred freebayes wally minimap2 shapeit4 nanoplot sniffles whatshap longshot && touch .tools
+	export PATH=${PBASE}/mamba/bin:${PATH} && mamba install -y --override-channels -c conda-forge -c bioconda samtools bcftools bedtools htslib bwa fastp delly alfred freebayes wally minimap2 shapeit4 nanoplot sniffles whatshap longshot && touch .tools
 
 .check: .mamba .tools
-	export PATH=${PBASE}/mamba/bin:${PATH} && samtools --version && bcftools --version && bedtools --version && bgzip --version && tabix --version && trim_galore --version && delly --version && sniffles --version && NanoPlot --version && echo "Installation complete!" && touch .check
+	export PATH=${PBASE}/mamba/bin:${PATH} && samtools --version && bcftools --version && bedtools --version && bgzip --version && tabix --version && delly --version && sniffles --version && NanoPlot --version && echo "Installation complete!" && touch .check
 
 .clair3: .mamba .tools
 	export PATH=${PBASE}/mamba/bin:${PATH} && mamba create -y -n clair3 --override-channels -c conda-forge -c bioconda clair3 python=3.9.0 && touch .clair3

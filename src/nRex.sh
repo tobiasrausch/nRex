@@ -33,8 +33,8 @@ then
     ${BASEDIR}/trim.sh ${OUTP} ${FQ1} ${FQ2}
 
     # Align the adapter-filtered FASTQs
-    ${BASEDIR}/align.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}_val_1.fq.gz ${OUTP}_val_2.fq.gz
-    rm ${OUTP}_val_1.fq.gz ${OUTP}_val_2.fq.gz
+    ${BASEDIR}/align.sh ${ATYPE} ${GENOME} ${OUTP} ${OUTP}.R1.fq.gz ${OUTP}.R2.fq.gz
+    rm ${OUTP}.R1.fq.gz ${OUTP}.R2.fq.gz
 fi
 
 # Read-depth

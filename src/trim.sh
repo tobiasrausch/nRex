@@ -18,10 +18,5 @@ FQ1=${2}
 FQ2=${3}
 THREADS=8
 
-# FastQC
-mkdir fastqc_${OUTP}
-fastqc -t ${THREADS} -o fastqc_${OUTP}/ ${FQ1}
-fastqc -t ${THREADS} -o fastqc_${OUTP}/ ${FQ2}
-
-# Adapter trimming
-trim_galore --cores ${THREADS} --paired --2colour 20 --basename ${OUTP} ${FQ1} ${FQ2}
+## FASTQ pre-processing
+fastp --thread ${THREADS} -i ${FQ1} -I ${FQ2} -o ${OUTP}.R1.fq.gz -O ${OUTP}.R2.fq.gz -j ${OUTP}.json -h ${OUTP}.html
