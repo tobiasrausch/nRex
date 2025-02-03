@@ -1,6 +1,7 @@
 .check
 .mamba
-.tools
+.sr
+.lr
 .shapeit
 .vep
 .clair3
