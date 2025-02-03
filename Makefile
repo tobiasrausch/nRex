@@ -21,7 +21,7 @@ all: ${TARGETS}
 .clair3: .mamba
 	export PATH=${PBASE}/mamba/bin:${PATH} && mamba create -y -n clair3 --override-channels -c conda-forge -c bioconda clair3 python=3.9.0 && touch .clair3
 
-.vep: .mamba .tools
+.vep: .mamba
 	mkdir vep_data && chmod a+rwx vep_data && docker run -t -i -v ${PBASE}/vep_data:/opt/vep/.vep ensemblorg/ensembl-vep INSTALL.pl -a cfp -s homo_sapiens -y GRCh38 -g all && touch .vep
 
 clean:
