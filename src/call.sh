@@ -12,6 +12,8 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 export PATH=${BASEDIR}/../mamba/bin:${PATH}
 
+source activate shortread
+
 # CMD parameters
 ATYPE=${1}
 GENOME=${2}
@@ -37,3 +39,5 @@ rm ${OUTP}.norm.bcf ${OUTP}.norm.bcf.csi
 bcftools view -T <(zcat ${BASEDIR}/../genome/${ATYPE}.bed.gz) ${OUTP}.norm.filtered.bcf | bgzip > ${OUTP}.${ATYPE}.vcf.gz
 tabix ${OUTP}.${ATYPE}.vcf.gz
 rm ${OUTP}.norm.filtered.bcf ${OUTP}.norm.filtered.bcf.csi
+
+source deactivate

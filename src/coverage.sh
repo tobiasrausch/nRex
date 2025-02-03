@@ -12,6 +12,8 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 export PATH=${BASEDIR}/../mamba/bin:${PATH}
 
+source activate shortread
+
 # CMD parameters
 ATYPE=${1}
 GENOME=${2}
@@ -26,3 +28,5 @@ if [[ ${ATYPE} = *"wgs"* ]]; then
 else
     delly cnv -r ${BASEDIR}/../genome/${ATYPE}.bed.gz -n -b ${BASEDIR}/../genome/${ATYPE}.bed.gz -g ${GENOME} -m ${MAP} -o ${OUTP}.cov.bcf -c ${OUTP}.cov.gz ${BAMFILE}
 fi
+
+source deactivate

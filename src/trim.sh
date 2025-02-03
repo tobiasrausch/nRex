@@ -12,6 +12,8 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 export PATH=${BASEDIR}/../mamba/bin:${PATH}
 
+source activate shortread
+
 # Input parameters
 OUTP=${1}
 FQ1=${2}
@@ -20,3 +22,5 @@ THREADS=8
 
 ## FASTQ pre-processing
 fastp --thread ${THREADS} -i ${FQ1} -I ${FQ2} -o ${OUTP}.R1.fq.gz -O ${OUTP}.R2.fq.gz -j ${OUTP}.json -h ${OUTP}.html
+
+source deactivate

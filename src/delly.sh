@@ -12,6 +12,8 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 export PATH=${BASEDIR}/../mamba/bin:${PATH}
 
+source activate shortread
+
 # CMD parameters
 ATYPE=${1}
 GENOME=${2}
@@ -21,3 +23,5 @@ shift 3
 
 # Delly
 delly call -g ${GENOME} -x ${EXCL} -o ${OUTP}.delly.bcf $@
+
+source deactivate

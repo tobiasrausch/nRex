@@ -12,6 +12,8 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 export PATH=${BASEDIR}/../mamba/bin:${PATH}
 
+source activate shortread
+
 # CMD parameters
 ATYPE=${1}
 GENOME=${2}
@@ -35,3 +37,5 @@ samtools flagstat -@ ${THREADS} ${OUTP}.bam > ${OUTP}.flagstat
 
 # Run alfred for BAM statistics
 alfred qc -b ${BASEDIR}/../genome/${ATYPE}.bed.gz -r ${GENOME} -j ${OUTP}.alfred.json.gz -o ${OUTP}.alfred.tsv.gz ${OUTP}.bam
+
+source deactivate

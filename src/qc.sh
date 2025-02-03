@@ -14,3 +14,4 @@ export PATH=${BASEDIR}/../mamba/bin:${PATH}
 
 OUTP=${1}
 python ${BASEDIR}/../scripts/qc.py -p ${OUTP} > ${OUTP}.qc.summary
+

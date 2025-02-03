@@ -12,6 +12,8 @@ SCRIPT=$(readlink -f "$0")
 BASEDIR=$(dirname "$SCRIPT")
 export PATH=${BASEDIR}/../mamba/bin:${PATH}
 
+source activate shortread
+
 # CMD params
 THREADS=8
 OUTP=${1}
@@ -44,3 +46,5 @@ done
 bcftools concat -O b -o ${OUTP}.shapeit.bcf ${FILES}
 bcftools index ${OUTP}.shapeit.bcf
 rm ${OUTP}.chr*.shapeit.bcf* ${OUTP}.called.vcf.gz ${OUTP}.called.vcf.gz.tbi
+
+source deactivate

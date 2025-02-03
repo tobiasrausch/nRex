@@ -10,7 +10,7 @@ all: ${TARGETS}
 	curl -L -O "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(shell uname)-$(shell uname -m).sh" && bash Miniforge3-$(shell uname)-$(shell uname -m).sh -b -p mamba && rm "Miniforge3-$(shell uname)-$(shell uname -m).sh" && touch .mamba
 
 .sr: .mamba
-	export PATH=${PBASE}/mamba/bin:${PATH} && mamba create -y -n shortread --override-channels -c conda-forge -c bioconda samtools bcftools bedtools htslib bwa fastp fastqc delly alfred freebayes wally && touch .sr
+	export PATH=${PBASE}/mamba/bin:${PATH} && mamba create -y -n shortread --override-channels -c conda-forge -c bioconda samtools bcftools bedtools htslib bwa fastp fastqc delly alfred freebayes wally shapeit4 && touch .sr
 
 .lr: .mamba
 	export PATH=${PBASE}/mamba/bin:${PATH} && mamba create -y -n longread --override-channels -c conda-forge -c bioconda samtools bcftools bedtools htslib delly alfred wally minimap2 shapeit4 nanoplot sniffles whatshap longshot && touch .lr
