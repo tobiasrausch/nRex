@@ -61,11 +61,13 @@ else:
 
 # Parse VCF
 for record in vcf:
+    if len(record.ALT) > 1:
+        continue
     if (record.FILTER is None) or (record.FILTER == ".") or (record.FILTER == "PASS"):
         pass
     else:
         continue
-    if record.QUAL < qual:
+    if (record.QUAL is not None) and (record.QUAL < qual):
         continue
     csq = record.INFO.get('CSQ')
     if amPresent:
@@ -113,11 +115,11 @@ for record in vcf:
                 for spl, gt, dp, ad in zip(vcf.samples, record.gt_types, record.format('DP'), record.format('AD')):
                     # gt_types is array of 0,1,2,3==HOM_REF, HET, UNKNOWN, HOM_ALT
                     if (gt != 2):
-                        if dp > 0:
-                            af = (float) (ad) / (float) (dp)
-                            if (ad >= minao) and (af > vafth):
+                        if dp[0] > 0:
+                            af = (float) (ad[1]) / (float) (dp[0])
+                            if (ad[1] >= minao) and (af > vafth):
                                 validSite = True
-                            if (ad >= minao) and (af > reportth):
+                            if (ad[1] >= minao) and (af > reportth):
                                 carrierStr += spl + "(VAF=" + str(round(af,2)) + "),"
             fields[addr['EXON']] = fields[addr['EXON']].replace('/', ';')
             if validSite:
