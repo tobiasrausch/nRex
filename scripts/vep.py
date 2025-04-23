@@ -16,7 +16,9 @@ parser.add_argument('-q', '--qual', metavar='20', required=False, dest='qual', h
 parser.add_argument('-r', '--report', metavar='0.05', required=False, dest='report', help='min. reporting VAF')
 parser.add_argument('-a', '--ao', metavar='2', required=False, dest='minao', help='min. alternative observation')
 parser.add_argument('-n', '--no-consequence-selection', dest='nocons', action='store_false')
+parser.add_argument('-p', '--no-pass-filtering', dest='nopass', action='store_true')
 parser.set_defaults(nocons=True)
+parser.set_defaults(nopass=False)
 args = parser.parse_args()
 
 minao = 2
@@ -63,7 +65,7 @@ else:
 for record in vcf:
     if len(record.ALT) > 1:
         continue
-    if (record.FILTER is None) or (record.FILTER == ".") or (record.FILTER == "PASS"):
+    if (args.nopass) or (record.FILTER is None) or (record.FILTER == ".") or (record.FILTER == "PASS"):
         pass
     else:
         continue
